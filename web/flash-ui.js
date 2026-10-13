@@ -7,8 +7,19 @@ const $=id=>document.getElementById(id);
 let rom=null,filename='',prepared=null,access=null,busy=false,downloadUrl=null,lastAction=null;
 const progress=createProgress($('install-log-heading'));
 const message=s=>$('flash-status').textContent=s;
+async function showAvailableVersion(){
+ try{
+  const response=await fetch('firmware/template.json',{cache:'no-store'});
+  if(!response.ok)throw Error('Template unavailable');
+  const metadata=await response.json();
+  if(!/^FM-1_\d+$/.test(metadata.product))throw Error('Unknown firmware version');
+  if(!prepared)$('firmware-version').textContent='Firmware: '+metadata.product;
+ }catch{if(!prepared)$('firmware-version').textContent='Firmware version shown after preparation.';}
+}
+
 function controls(){
  const fm=$('flash-model').value==='fm1';
+ $('firmware-version').hidden=!fm;
  $('build-firmware').disabled=busy||!rom||!fm;$('connect-device').disabled=busy||!fm;
  $('flash-device').disabled=busy||!prepared||!fm;$('flash-model').disabled=busy;
  $('restore-device').disabled=busy||!fm;$('retry-install').disabled=busy;
@@ -80,6 +91,7 @@ $('build-firmware').onclick=async()=>{
   $('download-firmware').href=downloadUrl;$('download-firmware').download='gamedude-'+filename.replace(/[^a-z0-9_-]/gi,'_')+'.fwsc';
   $('build-title').textContent=`${$('rom-name').textContent} → FM-1`;
   $('build-details').textContent=`${prepared.product} · ${(prepared.bytes.length/1024).toFixed(0)} KiB · USB updating included and verified`;
+  $('firmware-version').textContent='Firmware: '+prepared.product;
   $('build-review').hidden=false;message('Firmware verified. Connect your FM-1 by USB, then press Install / resume.');
  }catch(e){prepared=null;message(readableError(e));}
  finally{busy=false;controls();}
@@ -110,3 +122,4 @@ $('save-install-log').onclick=()=>{
 };
 window.addEventListener('beforeunload',e=>{if(busy){e.preventDefault();e.returnValue='';}});
 available();
+showAvailableVersion();
