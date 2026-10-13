@@ -10,7 +10,7 @@ Drop in a `.gb` file or a ZIP containing one `.gb`. ROM processing and firmware 
 
 Choose **FM-1**, **SMK37**, or **Game Boy** in the Simulator selector. The Game Boy option adds a classic gray handheld shell, green display and magenta A/B buttons. FM-1 and SMK37 offer clickable instrument keys and pads. Switching layouts keeps the current game running.
 
-The colorful GameDude logo drops into place and plays a quiet landing ding when sound is enabled. Volume starts at 25%. Arrow keys move, Z is B, X is A, Shift is Select and Enter is Start. On-screen controls also work. Cartridge RAM saves automatically in this browser, with `.sav` import/export for games with RAM.
+The colorful GameDude logo drops into place and plays a quiet landing ding when sound is enabled. Volume starts at 25%. WASD or arrow keys move. Space is A (fire), Enter is B (jump), P is Start, and Shift is Select. Z/X remain alternate B/A keys; actions depend on the game. On-screen controls also work. Cartridge RAM saves automatically in this browser, with `.sav` import/export for games with RAM.
 
 ## Flash FM-1
 
@@ -80,3 +80,5 @@ GPL-3.0-only integration with retained third-party notices. See [LICENSE](LICENS
 - Browser packaging/updater: retained from ChanceTheMaker/sloop-smk, with original copyright notices and hashes in provenance.
 - Three unmodified JieLi AC79 SDK package files: JieLi Technology; Apache-2.0. License and attribution accompany the public template.
 - Original GameDude pixel logo, startup animation and diagnostic cartridge are project assets. Game Boy and Nintendo are trademarks of Nintendo. This independent project is not affiliated with Nintendo.
+
+The browser simulator offers illustrated FM-1, SMK-37 Pro, SMK-37 Elite and classic Game Boy layouts. Lit device controls are playable. Enlarge screen moves the same running display above the hardware panel without resetting the game. Device artwork is retained under `vendor/illustrations` and generated with `python tools/make_device_art.py`.

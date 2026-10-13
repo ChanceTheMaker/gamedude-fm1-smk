@@ -1,0 +1,10 @@
+{
+  "smk37.svg": {
+    "source": "ChanceTheMaker/sloop-smk/web/index.html",
+    "source_sha256": "ce49f8c0e3e0a4894674d485ac053cdb2f46b0c3d1bb86f88fe87352a6b1a07b"
+  },
+  "fm1.svg": {
+    "source": "ChanceTheMaker/sloop-smk/web/index_pkg.html",
+    "source_sha256": "1e220c36c31deb6d38b5e39df613737debbf3c1d75013d2677777a1fb48af145"
+  }
+}

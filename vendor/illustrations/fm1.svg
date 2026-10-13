@@ -1,0 +1,175 @@
+<!-- SPDX-License-Identifier: GPL-3.0-only; extracted from ChanceTheMaker/sloop-smk web/index_pkg.html -->
+<svg viewBox="0 0 640 410" role="img" aria-labelledby="fm1-wire-title fm1-wire-desc" xmlns="http://www.w3.org/2000/svg">
+<title id="fm1-wire-title" data-i18n="ui.wireTitle">FM-1 synthesizer wireframe</title>
+<desc id="fm1-wire-desc" data-i18n="ui.wireDesc">The FM-1's rounded enclosure, eight rotary controls, central screen, twelve function buttons, octave buttons, and 27 touch keys.</desc>
+<defs>
+ <g id="fm1-knob"><circle r="13"/><ellipse cy="3" rx="16" ry="15" opacity=".35"/><path d="M0 -10v7" stroke-width="2.5"/></g>
+ <g id="fm1-key"><rect width="24" height="49" rx="12"/><path d="M12 12v24" opacity=".65" stroke-width="2.5"/></g>
+
+ <g id="fm1-product-knob" class="product-knob"><ellipse cy="3" rx="16" ry="15" fill="#111" opacity=".45" stroke="none"/><circle r="13" fill="url(#fm1-knob-shade)" stroke="#111"/><path d="M0 -10v7" stroke="#ddd" stroke-width="2.5"/></g>
+ <g id="fm1-product-key"><rect class="product-button" width="24" height="49" rx="12"/><path d="M12 12v24" opacity=".7" stroke-width="2.5"/></g>
+ <linearGradient id="fm1-knob-shade" x2=".2" y2="1"><stop stop-color="#525453"/><stop offset=".55" stop-color="#242625"/><stop offset="1" stop-color="#111312"/></linearGradient>
+ <linearGradient id="fm1-body-sheen" x2=".4" y2="1"><stop stop-color="#fff" stop-opacity=".16"/><stop offset=".5" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".1"/></linearGradient>
+</defs>
+<g class="hero-wire">
+<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+ <path class="wire-secondary" d="M40 101v257q0 27 30 27h500q30 0 30-27V101M46 364q10 10 26 10h497q15 0 24-10"/>
+ <rect x="40" y="55" width="560" height="320" rx="30"/>
+ <rect x="52" y="67" width="536" height="296" rx="23" class="wire-secondary"/>
+ <g class="wire-secondary" stroke-dasharray="2 6"><path d="M28 55H613M28 375H613M40 40V393M600 40V393"/></g>
+ <g><use href="#fm1-knob" x="87" y="105"/><use href="#fm1-knob" x="146" y="105"/><use href="#fm1-knob" x="87" y="161"/><use href="#fm1-knob" x="146" y="161"/>
+ <use href="#fm1-knob" x="358" y="105"/><use href="#fm1-knob" x="421" y="105"/><use href="#fm1-knob" x="484" y="105"/><use href="#fm1-knob" x="547" y="105"/></g>
+ <rect x="185" y="78" width="133" height="131" rx="17"/>
+ <rect x="199" y="93" width="105" height="99" rx="3" class="wire-secondary"/>
+ <g class="wire-display"><path d="M208 164l7-8 5 10 7-3 4-13 6 17 5-4 5 0 5-10 6 14 7-5 5-11 6 17 5-8 5 4 6-5"/><path class="wire-secondary" d="M208 125h87M208 175h87M233 132v11m23-11v11m23-11v11"/></g>
+ <rect x="72" y="197" width="90" height="27" rx="6"/>
+ <rect x="77" y="202" width="34" height="16" rx="3"/><rect x="119" y="202" width="37" height="16" rx="3"/>
+ <rect x="337" y="142" width="230" height="81" rx="12"/>
+ <rect x="60" y="240" width="520" height="117" rx="20"/>
+
+<rect x="346" y="151" width="29" height="27" rx="5"/>
+<rect x="382" y="151" width="29" height="27" rx="5"/>
+<rect x="418" y="151" width="29" height="27" rx="5"/>
+<rect x="454" y="151" width="29" height="27" rx="5"/>
+<rect x="490" y="151" width="29" height="27" rx="5"/>
+<rect x="526" y="151" width="29" height="27" rx="5"/>
+<rect x="346" y="185" width="29" height="27" rx="5"/>
+<rect x="382" y="185" width="29" height="27" rx="5"/>
+<rect x="418" y="185" width="29" height="27" rx="5"/>
+<rect x="454" y="185" width="29" height="27" rx="5"/>
+<rect x="490" y="185" width="29" height="27" rx="5"/>
+<rect x="526" y="185" width="29" height="27" rx="5"/>
+<use href="#fm1-key" x="68" y="302"/>
+<use href="#fm1-key" x="100" y="302"/>
+<use href="#fm1-key" x="132" y="302"/>
+<use href="#fm1-key" x="164" y="302"/>
+<use href="#fm1-key" x="196" y="302"/>
+<use href="#fm1-key" x="228" y="302"/>
+<use href="#fm1-key" x="260" y="302"/>
+<use href="#fm1-key" x="292" y="302"/>
+<use href="#fm1-key" x="324" y="302"/>
+<use href="#fm1-key" x="356" y="302"/>
+<use href="#fm1-key" x="388" y="302"/>
+<use href="#fm1-key" x="420" y="302"/>
+<use href="#fm1-key" x="452" y="302"/>
+<use href="#fm1-key" x="484" y="302"/>
+<use href="#fm1-key" x="516" y="302"/>
+<use href="#fm1-key" x="548" y="302"/>
+<use href="#fm1-key" x="84" y="248"/>
+<use href="#fm1-key" x="116" y="248"/>
+<use href="#fm1-key" x="148" y="248"/>
+<use href="#fm1-key" x="212" y="248"/>
+<use href="#fm1-key" x="244" y="248"/>
+<use href="#fm1-key" x="308" y="248"/>
+<use href="#fm1-key" x="340" y="248"/>
+<use href="#fm1-key" x="372" y="248"/>
+<use href="#fm1-key" x="436" y="248"/>
+<use href="#fm1-key" x="468" y="248"/>
+<use href="#fm1-key" x="532" y="248"/>
+</g><g fill="currentColor" font-size="7" text-anchor="middle">
+<text x="87" y="81">MASTER</text>
+<text x="146" y="81">SELECT</text>
+<text x="87" y="139">PRESETS</text>
+<text x="146" y="139">ALGORITHM</text>
+<text x="358" y="81">KNOB 1</text>
+<text x="421" y="81">KNOB 2</text>
+<text x="484" y="81">KNOB 3</text>
+<text x="547" y="81">KNOB 4</text>
+<text x="94" y="213">OCT−</text>
+<text x="138" y="213">OCT+</text>
+<text x="251" y="115">FELUCCA [SALT]</text>
+<text x="251" y="187">STUDIO</text>
+<text x="360" y="168" font-size="6">FX</text>
+<text x="396" y="168" font-size="6">SCL</text>
+<text x="432" y="168" font-size="6">ENV</text>
+<text x="468" y="168" font-size="6">LFO</text>
+<text x="504" y="168" font-size="6">EDIT</text>
+<text x="540" y="168" font-size="6">GLO</text>
+<text x="360" y="202" font-size="6">HOME</text>
+<text x="396" y="202" font-size="6">SAVE</text>
+<text x="432" y="202" font-size="6">ARP</text>
+<text x="468" y="202" font-size="6">SEQ</text>
+<text x="504" y="202" font-size="6">PLAY</text>
+<text x="540" y="202" font-size="6">REC</text>
+</g></g>
+<g class="hero-product" aria-hidden="true">
+<g fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round">
+ <path class="product-detail" d="M40 101v257q0 27 30 27h500q30 0 30-27V101M46 364q10 10 26 10h497q15 0 24-10"/>
+ <rect class="product-body" x="40" y="55" width="560" height="320" rx="30"/>
+ <rect fill="url(#fm1-body-sheen)" stroke-opacity=".3" x="52" y="67" width="536" height="296" rx="23" class="product-detail"/>
+
+ <g><use href="#fm1-product-knob" x="87" y="105"/><use href="#fm1-product-knob" x="146" y="105"/><use href="#fm1-product-knob" x="87" y="161"/><use href="#fm1-product-knob" x="146" y="161"/>
+ <use href="#fm1-product-knob" x="358" y="105"/><use href="#fm1-product-knob" x="421" y="105"/><use href="#fm1-product-knob" x="484" y="105"/><use href="#fm1-product-knob" x="547" y="105"/></g>
+ <rect class="product-bezel" x="185" y="78" width="133" height="131" rx="17"/>
+ <rect x="199" y="93" width="105" height="99" rx="3" class="product-screen"/>
+ <g class="product-display"><path d="M208 164l7-8 5 10 7-3 4-13 6 17 5-4 5 0 5-10 6 14 7-5 5-11 6 17 5-8 5 4 6-5"/><path class="product-detail" d="M208 125h87M208 175h87M233 132v11m23-11v11m23-11v11"/></g>
+ <rect class="product-rubber" x="72" y="197" width="90" height="27" rx="6"/>
+ <rect class="product-button" x="77" y="202" width="34" height="16" rx="3"/><rect class="product-button" x="119" y="202" width="37" height="16" rx="3"/>
+ <rect class="product-rubber" x="337" y="142" width="230" height="81" rx="12"/>
+ <rect class="product-rubber" x="60" y="240" width="520" height="117" rx="20"/>
+
+<rect class="product-button" x="346" y="151" width="29" height="27" rx="5"/>
+<rect class="product-button" x="382" y="151" width="29" height="27" rx="5"/>
+<rect class="product-button" x="418" y="151" width="29" height="27" rx="5"/>
+<rect class="product-button" x="454" y="151" width="29" height="27" rx="5"/>
+<rect class="product-button" x="490" y="151" width="29" height="27" rx="5"/>
+<rect class="product-button" x="526" y="151" width="29" height="27" rx="5"/>
+<rect class="product-button" x="346" y="185" width="29" height="27" rx="5"/>
+<rect class="product-button" x="382" y="185" width="29" height="27" rx="5"/>
+<rect class="product-button" x="418" y="185" width="29" height="27" rx="5"/>
+<rect class="product-button" x="454" y="185" width="29" height="27" rx="5"/>
+<rect class="product-button" x="490" y="185" width="29" height="27" rx="5"/>
+<rect class="product-button" x="526" y="185" width="29" height="27" rx="5"/>
+<use class="product-control-ink" href="#fm1-product-key" x="68" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="100" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="132" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="164" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="196" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="228" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="260" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="292" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="324" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="356" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="388" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="420" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="452" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="484" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="516" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="548" y="302"/>
+<use class="product-control-ink" href="#fm1-product-key" x="84" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="116" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="148" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="212" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="244" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="308" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="340" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="372" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="436" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="468" y="248"/>
+<use class="product-control-ink" href="#fm1-product-key" x="532" y="248"/>
+</g><g class="product-labels" fill="currentColor" font-size="7" text-anchor="middle">
+<text x="87" y="81">MASTER</text>
+<text x="146" y="81">SELECT</text>
+<text x="87" y="139">PRESETS</text>
+<text x="146" y="139">ALGORITHM</text>
+<text x="358" y="81">KNOB 1</text>
+<text x="421" y="81">KNOB 2</text>
+<text x="484" y="81">KNOB 3</text>
+<text x="547" y="81">KNOB 4</text>
+<text class="product-control-ink" x="94" y="213">OCT−</text>
+<text class="product-control-ink" x="138" y="213">OCT+</text>
+<text class="product-screen-label" x="251" y="115">FELUCCA [SALT]</text>
+<text class="product-screen-label" x="251" y="187">STUDIO</text>
+<text class="product-control-ink" x="360" y="168" font-size="6">FX</text>
+<text class="product-control-ink" x="396" y="168" font-size="6">SCL</text>
+<text class="product-control-ink" x="432" y="168" font-size="6">ENV</text>
+<text class="product-control-ink" x="468" y="168" font-size="6">LFO</text>
+<text class="product-control-ink" x="504" y="168" font-size="6">EDIT</text>
+<text class="product-control-ink" x="540" y="168" font-size="6">GLO</text>
+<text class="product-control-ink" x="360" y="202" font-size="6">HOME</text>
+<text class="product-control-ink" x="396" y="202" font-size="6">SAVE</text>
+<text class="product-control-ink" x="432" y="202" font-size="6">ARP</text>
+<text class="product-control-ink" x="468" y="202" font-size="6">SEQ</text>
+<text class="product-control-ink" x="504" y="202" font-size="6">PLAY</text>
+<text class="product-control-ink" x="540" y="202" font-size="6">REC</text>
+</g></g></svg>
