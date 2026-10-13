@@ -2,8 +2,8 @@ const $=id=>document.getElementById(id),ns='http://www.w3.org/2000/svg';
 const names={1:'A',2:'B',4:'Select',8:'Start',16:'Right',32:'Left',64:'Up',128:'Down'};
 const symbols={1:'A',2:'B',4:'SEL',8:'START',16:'\u2192',32:'\u2190',64:'\u2191',128:'\u2193'};
 export const simulatorMappings={
- fm1:{base:5,count:27,keys:{0:32,4:128,7:16,3:64,5:64,23:2,26:1,11:4,12:8},pads:{}},
- smk37:{base:0,count:37,keys:{5:32,9:128,12:16,8:64,10:64,33:1,36:2},pads:{1:64,8:32,9:128,10:16,14:2,15:1}}
+ fm1:{base:5,count:27,keys:{0:32,2:32,4:128,6:16,7:16,3:64,5:64,23:2,26:1,11:4,12:8},pads:{}},
+ smk37:{base:0,count:37,keys:{5:32,7:32,9:128,11:16,12:16,8:64,10:64,33:1,36:2},pads:{1:64,8:32,9:128,10:16,14:2,15:1}}
 };
 let generation=0,zoomed=false;const assets=new Map();
 function send(source,bit,down){document.dispatchEvent(new CustomEvent('gamedude-control',{detail:{source,bit,down}}));}
@@ -45,7 +45,7 @@ export async function renderSimulator(next){
  const shell=document.querySelector('.screen-shell');shell.prepend($('screen'));
  document.querySelector('.player-card').dataset.simulator=next;$('simulator-model').value=next;
  document.querySelector('.device').hidden=next!=='gameboy';$('hardware').hidden=next==='gameboy';$('zoom-screen').hidden=next==='gameboy';$('large-screen').hidden=true;
- if(svg){wire(svg,next);$('instrument-art').replaceChildren(svg);$('hardware-legend').textContent=next==='fm1'?'Click the lit controls. White 1 / 3 / 5: left / down / right. Black 2 or 3: up. White 14 / 16: B / A. PLAY: Start. RECORD: Select.':'Click the lit controls. White 4 / 6 / 8: left / down / right. Black 4 or 5: up. White 20 / 22: A / B. Pads: bottom 1 / 2 / 3 move, top 2 up, bottom 7 / 8 B / A. PLAY: Start. RECORD: Select.';}
+ if(svg){wire(svg,next);$('instrument-art').replaceChildren(svg);$('hardware-legend').textContent=next==='fm1'?'Click the lit controls. White 1 or 2: left. White 3: down. White 4 or 5: right. Black 2 or 3: up. White 14 / 16: B / A. PLAY: Start. RECORD: Select.':'Click the lit controls. White 4 or 5: left. White 6: down. White 7 or 8: right. Black 4 or 5: up. White 20 / 22: A / B. Pads: bottom 1 / 2 / 3 move, top 2 up, bottom 7 / 8 B / A. PLAY: Start. RECORD: Select.';}
  else{$('palette').value='0';$('palette').dispatchEvent(new Event('change'));}
  applyZoom();
  }catch(e){$('hardware-legend').textContent=e.message;}
