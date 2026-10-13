@@ -83,7 +83,7 @@ $('volume').oninput=e=>core?.gp_volume(Number(e.target.value));
 $('sound').onclick=()=>{if(audio?.state==='running'){audio.suspend();flushAudio();}else startAudio();};
 $('exportSave').onclick=()=>{if(loaded&&saveSize)download(new Uint8Array(core.memory.buffer,core.gp_save_data(),saveSize).slice(),gameName+'.sav');};
 $('save').onchange=async e=>{const f=e.target.files[0];if(f){if(f.size!==saveSize){status('Save size does not match this cartridge.');return;}new Uint8Array(core.memory.buffer,core.gp_save_data(),saveSize).set(new Uint8Array(await f.arrayBuffer()));saveNow();status('Save imported. Reset the game to reload its save.');}e.target.value='';};
-const keys={ArrowUp:64,KeyW:64,ArrowDown:128,KeyS:128,ArrowLeft:32,KeyA:32,ArrowRight:16,KeyD:16,KeyZ:2,KeyX:1,Space:1,Enter:2,ShiftLeft:4,ShiftRight:4,KeyP:8};
+const keys={ArrowUp:64,KeyW:64,ArrowDown:128,KeyS:128,ArrowLeft:32,KeyA:32,ArrowRight:16,KeyD:16,KeyZ:2,KeyX:1,Space:2,Enter:1,ShiftLeft:4,ShiftRight:4,KeyP:8};
 window.addEventListener('keydown',e=>{
   if(!loaded||e.ctrlKey||e.altKey||e.metaKey||e.target.closest?.('textarea,select,[contenteditable]:not([contenteditable="false"]),input:not([type="file"]):not([type="button"]):not([type="submit"])'))return;
   if((e.code==='Enter'||e.code==='Space')&&e.target.closest?.('button,a,input'))return;
