@@ -17,10 +17,14 @@ Retirement reasons: 0 = none, 1 = startup not ready, 2 = CPU1 exception, 3 = job
 
 The assembly entry remains in XIP; the worker and scaling code remain in SRAM. Private stacks, timeout retirement and USB-update shutdown remain intact. No unrelated clock or bootloader changes were made.
 
-## Validation and pending hardware check
+## Validation and hardware check
 
 Passed: host emulator and input tests; exact scaler output and bounds; late-completion regression; invalid requests, timeouts and faults; FM-1 and SMK37 linking; required USB symbols; package identity/CRC/encryption round trips; simulated OTA install and reverse restore with boot-region preservation.
 
 The private Tetris 934 package has SHA-256 `6653b5151369054233a6fe473af1abf55d3aa8e045c767e0c2a45943d4e3972b`; its application has SHA-256 `cae0e55b05c597cdd566a237b3537514aea0381c51e2fed50a8995140da2ddf9`. ROM-containing artifacts remain outside source control.
 
-The 934 installer refused to write when the device unexpectedly reported MusicCoach `FM-1_903`. Three subsequent identity queries confirmed 903. Device ownership must be clarified before continuing the physical trial. Neither sustained CPU1 operation nor the exact cause of the observed fallback is claimed yet. The public browser template remains FM-1_930.
+The initial 934 installation attempt refused to write when the device unexpectedly reported MusicCoach `FM-1_903`. The owner subsequently restored GameDude, a fresh identity query confirmed `FM-1_930`, and the owner explicitly approved the exact 934 trial. Installation then completed over native USB with an exact `FM-1_934` restart identity.
+
+At 15.2-69.7 seconds uptime, repeated USB diagnostic samples confirmed CPU1 online, core ID 1, launch ready, and completed/accepted worker counts rising from 136 to 679. Faults, fallbacks, retirement reason and barred status all remained zero. Maximum measured worker duration was 44,535 ticks (about 1.86 ms). Emulation advanced at approximately 60 frames/sec and LCD/worker updates at approximately 10/sec. One startup audio underrun remained unchanged; Master was zero, so these measurements do not verify audible output.
+
+CPU1 is therefore performing graphics work on hardware while USB remains responsive. The owner confirmed normal picture, controls and sound after testing PLAY, movement, rotation and Master volume. Later diagnostics recorded game button activity (`game_buttons_seen = 186`) while CPU1 and USB remained healthy. Longer stability testing and updating away from an active CPU1 build remain pending. No performance improvement or long-term reliability claim is made from this short run. The public browser template remains FM-1_930.
