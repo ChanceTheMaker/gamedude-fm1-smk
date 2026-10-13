@@ -30,7 +30,7 @@
 dialog{color:var(--text,#e7edf7);background:#151e2d;border:1px solid #438d91;border-radius:16px;padding:24px;max-width:min(460px,90vw)}dialog::backdrop{background:#000b}
 
 /* Clear headings and numbered hardware actions. */
-.workflow-title{margin:0 0 16px;font-size:32px;line-height:1.15;letter-spacing:-1px;font-weight:800}
+.workflow-title{margin:0 0 16px;font-size:26px;line-height:1.15;letter-spacing:-.6px;font-weight:800;color:#79b8ff}
 .install-steps{display:grid;gap:12px;margin:18px 0}
 .step-button{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:13px 16px;border:1px solid #438b91;background:#153039;color:var(--ink);font-size:16px;font-weight:750;text-align:left;line-height:1.4}
 .step-button:hover:not(:disabled){background:#1b3e47;border-color:var(--cyan)}
@@ -39,3 +39,5 @@ dialog{color:var(--text,#e7edf7);background:#151e2d;border:1px solid #438d91;bor
 .step-button:disabled .step-number{background:#394b5f;color:#c4cfdd}
 .step-button.primary{background:var(--cyan);color:#07242b;border-color:var(--cyan);margin-top:16px}
 .step-button.primary .step-number{background:#07242b;color:var(--cyan)}
+
+footer{flex-wrap:wrap}footer .rom-art-notice{flex-basis:100%;margin:0;font-size:10px;line-height:1.6;color:var(--muted)}footer .rom-art-notice a{color:inherit}
