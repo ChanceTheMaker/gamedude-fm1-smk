@@ -1,5 +1,5 @@
 import {initHomebrew} from './homebrew.js?v=20261013';
-import {bootSplash,idleLogo,landingDing} from './branding.js';
+import {bootSplash,idleLogo,landingDing} from './branding.js?v=20261013-bounce';
 import {cartridge} from './zip.js';
 const $=id=>document.getElementById(id),ctx=$('screen').getContext('2d'),image=ctx.createImageData(160,144);
 let core,enginePromise,audio,node,audioPromise,romKey='',saveSize=0,paused=false,loaded=false,gameName='cartridge',allGames=[],catalog=[],loading=false,nextFrame=0,lastSave=0;
