@@ -2,12 +2,12 @@ import {bootSplash,idleLogo,landingDing} from './branding.js';
 import {cartridge} from './zip.js';
 const $=id=>document.getElementById(id),ctx=$('screen').getContext('2d'),image=ctx.createImageData(160,144);
 let core,enginePromise,audio,node,audioPromise,romKey='',saveSize=0,paused=false,loaded=false,gameName='cartridge',allGames=[],catalog=[],loading=false,nextFrame=0,lastSave=0;
-const owners=new Map(),period=1000*70224/4194304;
-let rateStart=0,rateFrames=0;
+const keyPresses=new Map(),owners=new Map(),period=1000*70224/4194304;
+let rateStart=0,rateFrames=0,videoDirty=false;
 const errors=['','Cartridge is too short.','GBC-only cartridge. This player supports original GB.','Cartridge length/header size mismatch.','Unsupported cartridge RAM size.','Cartridge header checksum failed.','Unsupported cartridge mapper.','The emulator encountered an unsupported CPU operation.','Emulator frame timed out.'];
 const status=s=>$('status').textContent=s;
 function inputs(){let bits=0;for(const b of owners.values())bits|=b;core?.gp_buttons(bits);document.querySelectorAll('[data-bit],[data-control-bit]').forEach(b=>b.classList.toggle('active',!!(bits&Number(b.dataset.bit||b.dataset.controlBit))));}
-function release(){owners.clear();inputs();}
+function release(){keyPresses.clear();owners.clear();inputs();}
 async function ensureEngine(){
   if(!core){enginePromise??=WebAssembly.instantiateStreaming(fetch('gb.wasm'),{}).then(r=>core=r.instance.exports).catch(e=>{enginePromise=null;throw e;});await enginePromise;}
   core.gp_volume(Number($('volume').value));core.gp_palette(Number($('palette').value));
@@ -32,8 +32,8 @@ function saveNow(){
   try{let s='';for(const b of bytes)s+=String.fromCharCode(b);localStorage.setItem(romKey,btoa(s));core.gp_save_clean();$('saved').textContent='Save RAM stored in this browser.';}
   catch{$('saved').textContent='Browser storage unavailable. Use Export save.';}
 }
-function animate(now){
-  requestAnimationFrame(animate);if(!loaded||paused)return;
+function advance(now){
+  if(!loaded||paused)return;
   if(!nextFrame||now-nextFrame>200)nextFrame=now;
   let count=0;
   while(now>=nextFrame&&count<4){
@@ -43,12 +43,15 @@ function animate(now){
     if(node&&audio.state==='running'){const pcm=new Int16Array(core.memory.buffer,ptr,frames*2).slice();node.port.postMessage({type:'pcm',bytes:pcm.buffer},[pcm.buffer]);}
     nextFrame+=period;
   }
-  if(count)draw();
+  if(count)videoDirty=true;
   if(!rateStart)rateStart=now;rateFrames+=count;
   if(now-rateStart>=1000){$('rate').textContent=Math.round(rateFrames*1000/(now-rateStart))+' FPS · GB';rateStart=now;rateFrames=0;}
   if(now-lastSave>2000){lastSave=now;if(core.gp_save_dirty())saveNow();}
 }
-requestAnimationFrame(animate);
+// Browser repaint throttling must not become the Game Boy's CPU/audio clock.
+setInterval(()=>advance(performance.now()),8);
+function present(){requestAnimationFrame(present);if(videoDirty&&loaded&&!paused){draw();videoDirty=false;}}
+requestAnimationFrame(present);
 function download(bytes,name){const url=URL.createObjectURL(new Blob([bytes]));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 async function load(buffer,name='cartridge.gb'){
   if(loading)return;loading=true;document.dispatchEvent(new Event('gamedude-rom-clear'));status('Opening cartridge…');
@@ -62,7 +65,7 @@ async function load(buffer,name='cartridge.gb'){
     await bootSplash(ctx,()=>landingDing(audio,Number($('volume').value)));
     document.dispatchEvent(new CustomEvent('gamedude-rom',{detail:{bytes:rom.slice(0),name,title:gameName}}));
     loaded=true;paused=false;nextFrame=0;rateStart=rateFrames=0;$('pause').textContent='Pause';$('title').textContent=gameName;$('lamp').classList.add('on');$('pause').disabled=$('reset').disabled=false;$('save').disabled=$('exportSave').disabled=!saveSize;
-    status('Playing · '+gameName);$('saved').textContent=saveSize?'Battery RAM saves automatically in this browser.':'This cartridge has no save RAM.';
+    status('Playing · '+gameName);$('saved').textContent=saveSize?'Battery RAM saves automatically in this browser.':'This cartridge has no save RAM.';$('screen').focus({preventScroll:true});
   }catch(e){status(e.message||'Could not decompress this ZIP. Try an extracted .gb file.');if(!loaded){$('lamp').classList.remove('on');$('pause').disabled=$('reset').disabled=$('exportSave').disabled=$('save').disabled=true;}}
   finally{loading=false;}
 }
@@ -80,9 +83,17 @@ $('volume').oninput=e=>core?.gp_volume(Number(e.target.value));
 $('sound').onclick=()=>{if(audio?.state==='running'){audio.suspend();flushAudio();}else startAudio();};
 $('exportSave').onclick=()=>{if(loaded&&saveSize)download(new Uint8Array(core.memory.buffer,core.gp_save_data(),saveSize).slice(),gameName+'.sav');};
 $('save').onchange=async e=>{const f=e.target.files[0];if(f){if(f.size!==saveSize){status('Save size does not match this cartridge.');return;}new Uint8Array(core.memory.buffer,core.gp_save_data(),saveSize).set(new Uint8Array(await f.arrayBuffer()));saveNow();status('Save imported. Reset the game to reload its save.');}e.target.value='';};
-const keys={ArrowUp:64,ArrowDown:128,ArrowLeft:32,ArrowRight:16,KeyZ:2,KeyX:1,ShiftLeft:4,ShiftRight:4,Enter:8};
-window.addEventListener('keydown',e=>{if(/INPUT|SELECT|TEXTAREA|BUTTON|A$/.test(e.target.tagName))return;const bit=keys[e.code];if(bit){e.preventDefault();owners.set(e.code,bit);inputs();}});
-window.addEventListener('keyup',e=>{if(keys[e.code]){owners.delete(e.code);inputs();}});
+const keys={ArrowUp:64,KeyW:64,ArrowDown:128,KeyS:128,ArrowLeft:32,KeyA:32,ArrowRight:16,KeyD:16,KeyZ:2,KeyX:1,Space:1,Enter:2,ShiftLeft:4,ShiftRight:4,KeyP:8};
+window.addEventListener('keydown',e=>{
+  if(!loaded||e.ctrlKey||e.altKey||e.metaKey||e.target.closest?.('textarea,select,[contenteditable]:not([contenteditable="false"]),input:not([type="file"]):not([type="button"]):not([type="submit"])'))return;
+  if((e.code==='Enter'||e.code==='Space')&&e.target.closest?.('button,a,input'))return;
+  const bit=keys[e.code];if(bit){e.preventDefault();if(!e.repeat){keyPresses.set(e.code,{at:performance.now()});owners.set(e.code,bit);inputs();}}
+});
+window.addEventListener('keyup',e=>{const press=keyPresses.get(e.code);if(!press)return;
+  // Even a very quick tap must span a Game Boy input polling interval.
+  setTimeout(()=>{if(keyPresses.get(e.code)!==press)return;keyPresses.delete(e.code);owners.delete(e.code);inputs();},Math.max(0,40-(performance.now()-press.at)));
+});
+document.addEventListener('click',e=>{if(loaded&&e.detail&&e.target.closest?.('.toolbar button,#hardware button,.game-controls button,.small-buttons button'))$('screen').focus({preventScroll:true});});
 window.addEventListener('blur',release);window.addEventListener('pagehide',saveNow);
 document.addEventListener('visibilitychange',()=>{if(document.hidden){release();saveNow();if(loaded&&!paused)$('pause').click();}});
 document.querySelectorAll('[data-bit]').forEach(b=>{b.onpointerdown=e=>{e.preventDefault();b.setPointerCapture(e.pointerId);owners.set('p'+e.pointerId,Number(b.dataset.bit));inputs();};for(const event of ['pointerup','pointercancel','lostpointercapture'])b.addEventListener(event,e=>{owners.delete('p'+e.pointerId);inputs();});});
