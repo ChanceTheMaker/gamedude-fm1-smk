@@ -3,6 +3,7 @@ import {cartridge} from './zip.js';
 const $=id=>document.getElementById(id),ctx=$('screen').getContext('2d'),image=ctx.createImageData(160,144);
 let core,enginePromise,audio,node,audioPromise,romKey='',saveSize=0,paused=false,loaded=false,gameName='cartridge',allGames=[],catalog=[],loading=false,nextFrame=0,lastSave=0;
 const owners=new Map(),period=1000*70224/4194304;
+let rateStart=0,rateFrames=0;
 const errors=['','Cartridge is too short.','GBC-only cartridge. This player supports original GB.','Cartridge length/header size mismatch.','Unsupported cartridge RAM size.','Cartridge header checksum failed.','Unsupported cartridge mapper.','The emulator encountered an unsupported CPU operation.','Emulator frame timed out.'];
 const status=s=>$('status').textContent=s;
 function inputs(){let bits=0;for(const b of owners.values())bits|=b;core?.gp_buttons(bits);document.querySelectorAll('[data-bit],[data-control-bit]').forEach(b=>b.classList.toggle('active',!!(bits&Number(b.dataset.bit||b.dataset.controlBit))));}
@@ -43,6 +44,8 @@ function animate(now){
     nextFrame+=period;
   }
   if(count)draw();
+  if(!rateStart)rateStart=now;rateFrames+=count;
+  if(now-rateStart>=1000){$('rate').textContent=Math.round(rateFrames*1000/(now-rateStart))+' FPS · GB';rateStart=now;rateFrames=0;}
   if(now-lastSave>2000){lastSave=now;if(core.gp_save_dirty())saveNow();}
 }
 requestAnimationFrame(animate);
@@ -58,7 +61,7 @@ async function load(buffer,name='cartridge.gb'){
     const b=new Uint8Array(core.memory.buffer,core.gp_title(),17);gameName=String.fromCharCode(...b).split('\0')[0]||'Untitled';
     await bootSplash(ctx,()=>landingDing(audio,Number($('volume').value)));
     document.dispatchEvent(new CustomEvent('gamedude-rom',{detail:{bytes:rom.slice(0),name,title:gameName}}));
-    loaded=true;paused=false;nextFrame=0;$('pause').textContent='Pause';$('title').textContent=gameName;$('lamp').classList.add('on');$('pause').disabled=$('reset').disabled=false;$('save').disabled=$('exportSave').disabled=!saveSize;
+    loaded=true;paused=false;nextFrame=0;rateStart=rateFrames=0;$('pause').textContent='Pause';$('title').textContent=gameName;$('lamp').classList.add('on');$('pause').disabled=$('reset').disabled=false;$('save').disabled=$('exportSave').disabled=!saveSize;
     status('Playing · '+gameName);$('saved').textContent=saveSize?'Battery RAM saves automatically in this browser.':'This cartridge has no save RAM.';
   }catch(e){status(e.message||'Could not decompress this ZIP. Try an extracted .gb file.');if(!loaded){$('lamp').classList.remove('on');$('pause').disabled=$('reset').disabled=$('exportSave').disabled=$('save').disabled=true;}}
   finally{loading=false;}
@@ -70,7 +73,7 @@ const drop=$('dropzone');if(drop){for(const type of ['dragenter','dragover'])dro
 document.addEventListener('gamedude-control',e=>{const {source,bit,down}=e.detail;if(down)owners.set(source,bit);else owners.delete(source);inputs();});
 document.addEventListener('gamedude-release',release);
 document.addEventListener('gamedude-pause',()=>{if(loaded&&!paused)$('pause').click();});
-$('pause').onclick=()=>{paused=!paused;release();core.gp_pause(paused?1:0);flushAudio();nextFrame=0;$('pause').textContent=paused?'Resume':'Pause';status(paused?'Paused':'Playing · '+gameName);if(paused)saveNow();else startAudio();};
+$('pause').onclick=()=>{paused=!paused;rateStart=rateFrames=0;$('rate').textContent=paused?'PAUSED': '160 \u00d7 144 \u00b7 GB';release();core.gp_pause(paused?1:0);flushAudio();nextFrame=0;$('pause').textContent=paused?'Resume':'Pause';status(paused?'Paused':'Playing · '+gameName);if(paused)saveNow();else startAudio();};
 $('reset').onclick=()=>{release();core.gp_reset();flushAudio();nextFrame=0;};
 $('palette').onchange=e=>core?.gp_palette(Number(e.target.value));
 $('volume').oninput=e=>core?.gp_volume(Number(e.target.value));
