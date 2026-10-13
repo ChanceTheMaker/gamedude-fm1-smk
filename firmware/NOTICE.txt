@@ -1,0 +1,5 @@
+GameDude firmware: GPL-3.0-only integration. Corresponding source: https://github.com/ChanceTheMaker/gamedude-fm1-smk
+Peanut-GB and MiniGB APU retain MIT notices in the source.
+Felucca: Copyright 2026 Leo Kuroshita, Huegelton Instruments. SMK/MusicCoach adaptations by Chance Roth / ChanceTheMaker.
+JieLi Technology AC79 SDK: Apache-2.0. Packages contain unmodified uboot.boot, cfg_tool.bin and eq_cfg_hw.bin. The SDK has no NOTICE file.
+Only the original project diagnostic cartridge is included. User ROMs are inserted locally.
