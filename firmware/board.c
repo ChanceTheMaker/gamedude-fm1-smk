@@ -176,21 +176,22 @@ static void audio_stop(void){fm1_audio_stop();}
 #include "fm1_recovery.h"
 #endif
 static void boot_splash(int display_ok){
-    uint32_t start=fm1_ticks(),landed=0,landing_frame=0,landed_at=0;
+    uint32_t start=fm1_ticks(),landed=0,landing_frame=0,landed_at=0,next_draw=0;
     for(;;){
         uint32_t ms=(fm1_ticks()-start)/24000u;
         fm1_wdt_feed();
 #if !GB_SMK37
         master_poll();
 #endif
-        if(landed&&ms-landed_at>=250)break;
-        if(!landed&&((display_ok&&display_ready())||!display_ok)){
-            if(landing_frame||(!display_ok&&ms>=650)){
-                ding_position=0;landed=1;landed_at=ms;continue;
-            }
-            uint32_t t=ms>650?650:ms;
-            if(display_ok){gd_logo_draw(screen,-36+(int)(120u*t*t/(650u*650u)));display_frame();}
-            if(t==650)landing_frame=1;
+        int ready=!display_ok||display_ready();
+        /* Start the chime after the landing frame has finished its LCD transfer. */
+        if(!landed&&ready&&(landing_frame||(!display_ok&&ms>=GD_SPLASH_LAND_MS))){
+            ding_position=0;landed=1;landed_at=ms;
+        }
+        if(landed&&ms>=GD_SPLASH_END_MS&&ms-landed_at>=750u)break;
+        if(display_ok&&ready&&ms>=next_draw){
+            gd_splash_draw(screen,ms);display_frame();next_draw=ms+33u;
+            if(ms>=GD_SPLASH_LAND_MS)landing_frame=1;
         }
     }
     while(display_ok&&!display_ready())fm1_wdt_feed();

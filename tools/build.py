@@ -47,6 +47,8 @@ def main():
         run([ROOT/'build/smk37-controls-test.exe'])
         run([a.zig,'cc','-std=c99','-O2','-UNDEBUG','-Isrc','tests/video_worker.c','-o','build/video-worker-test.exe'])
         run([ROOT/'build/video-worker-test.exe'])
+        run([a.zig,'cc','-std=c99','-O2','-UNDEBUG','-Isrc','tests/boot_brand.c','-o','build/boot-brand-test.exe'])
+        run([ROOT/'build/boot-brand-test.exe'])
         return
     else:
         native(a,sources)
