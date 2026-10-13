@@ -8,7 +8,7 @@ WEB=ROOT/'web'
 OUT=ROOT/'build/site'
 files=['artwork/fm1.svg','artwork/smk-pro.svg','artwork/smk-elite.svg','artwork/gamedude-devices.svg','artwork/NOTICE.txt','index.html','studio.css','gamedude.js','gamedude-audio.js',
        'gamedude-logo.svg','branding.js','simulator.js','flash-ui.js',
-       'rom-firmware.js','zip.js','credits.html','gb.wasm','diagnostic.gb','build.json',
+       'rom-firmware.js','restore-firmware.js','zip.js','credits.html','gb.wasm','diagnostic.gb','build.json',
        'vendor/fm1pkg.js','vendor/fm1ota.js','firmware/fm1-template.fwsc',
        'firmware/template.json','firmware/GPL-3.0.txt','firmware/MIT-Peanut-GB.txt',
        'firmware/Apache-2.0.txt','firmware/NOTICE.txt']
