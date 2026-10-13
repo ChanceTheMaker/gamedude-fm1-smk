@@ -232,11 +232,11 @@ export async function sha256hex(bytes) {
   return [...new Uint8Array(d)].map((x) => x.toString(16).padStart(2, "0")).join("");
 }
 
-// Only the user's unmodified official V15 is accepted for a return to stock.
+// Only the unmodified official V15 is accepted for a return to stock.
 // The digest pins every file, loader and flash layout; filenames are not evidence.
 export async function validateStockPackage(bytes) {
   if (bytes.length !== STOCK_V15_SIZE || await sha256hex(bytes) !== STOCK_V15_SHA256)
-    throw new Error("Select the unmodified official FM-1 V15 file (FM-1.fwsc).");
+    throw new Error("Firmware verification failed: expected the unmodified official FM-1 V15 package.");
   const pkg = new Package(bytes);
   if (pkg.product !== "FM-1_015" || pkg.flashFileOff !== 1044 || pkg.flashSize !== 602112 ||
       pkg.appBase !== 16384 || pkg.appOff !== 16672 || pkg.app.size !== STOCK_APP_SIZE ||

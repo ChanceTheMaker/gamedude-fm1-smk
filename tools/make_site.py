@@ -8,13 +8,16 @@ WEB=ROOT/'web'
 OUT=ROOT/'build/site'
 files=['hero.js','artwork/game-tetris.png','artwork/game-mario.png','artwork/game-tennis.png','artwork/fm1.svg','artwork/smk-pro.svg','artwork/smk-elite.svg','artwork/gamedude-devices.svg','artwork/NOTICE.txt','index.html','studio.css','gamedude.js','gamedude-audio.js',
        'gamedude-logo.svg','branding.js','simulator.js','flash-ui.js',
-       'rom-firmware.js','restore-firmware.js','zip.js','credits.html','gb.wasm','diagnostic.gb','build.json',
+       'rom-firmware.js','install-firmware.js','update-progress.js','restore-firmware.js','zip.js','credits.html','gb.wasm','diagnostic.gb','build.json',
        'vendor/fm1pkg.js','vendor/fm1ota.js','firmware/fm1-template.fwsc',
-       'firmware/template.json','firmware/GPL-3.0.txt','firmware/MIT-Peanut-GB.txt',
+       'firmware/template.json','firmware/fm1-original.fwsc','firmware/original.json','firmware/GPL-3.0.txt','firmware/MIT-Peanut-GB.txt',
        'firmware/Apache-2.0.txt','firmware/NOTICE.txt']
 assert (WEB/'diagnostic.gb').read_bytes()==make_rom(),'Unexpected diagnostic ROM'
 metadata=json.loads((WEB/'firmware/template.json').read_text())
 assert hashlib.sha256((WEB/'firmware/fm1-template.fwsc').read_bytes()).hexdigest()==metadata['sha256']
+original=json.loads((WEB/'firmware/original.json').read_text())
+assert original['product']=='FM-1_015' and original['sha256']=='db1642b2b6fa5c2cccb11ffd13878068bb28601678d3644049f99dc40e7edb8a'
+assert hashlib.sha256((WEB/'firmware/fm1-original.fwsc').read_bytes()).hexdigest()==original['sha256']
 assert hashlib.sha256((WEB/'gb.wasm').read_bytes()).hexdigest()==json.loads((WEB/'build.json').read_text())['sha256']
 if OUT.exists():
     unexpected=[p.relative_to(OUT).as_posix() for p in OUT.rglob('*') if p.is_file()

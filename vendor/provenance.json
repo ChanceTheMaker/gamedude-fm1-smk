@@ -95,5 +95,21 @@
       "fm1pkg.js": "f365bc393e424caa31669f68de941881648eb4553bfbae64522274f827ed79c6",
       "fm1ota.js": "b725c2cc4b290b6584b0cb68993ddea49a66da046f5727c80172eb1ab254f528"
     }
+  },
+  "gamedude_installer_update": {
+    "source_repository": "ChanceTheMaker/sloop-smk",
+    "source_revision": "c9934bca6838ecb4d83faf965dfe00d2778a42f6",
+    "files": {
+      "elite-resume/fm1ota.js": "705a8acefd73701f5046dca0f807487dcb07446b1c4f0431480f19f124ef8216",
+      "update-progress.js": "0cca4d33e19a6fdfa7a92a45b72d312c7d2a85730d1aafd87aaa201a59f39ce5",
+      "elite-resume/test_discovery.mjs": "a9d7c025ef115a5645ba88d267b18f4cfb6b4cfe9ed05d82ce3581bb046df5cf",
+      "test_update_progress.mjs": "6b84b21c80dd7584cfc7e954dfba827b547871a0b2e447eec170473f33a23c3b"
+    },
+    "handoff_reference": {
+      "repository": "ChanceTheMaker/MusicCoach-firmware",
+      "revision": "cc13e146f11d93328b4fc13ec92c4d69f6bc6e76",
+      "file": "web/musiccoach-usb/fm1-install.js"
+    },
+    "adaptations": "GameDude immutable ROM packages, automatic original restore, generic-loader confirmation, exact restart identity, retry UI; retained GPL notices."
   }
 }

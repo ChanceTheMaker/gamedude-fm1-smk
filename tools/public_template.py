@@ -7,12 +7,16 @@ subprocess.run([sys.executable,'tools/build.py','fm1','--rom-capacity','524288']
 subprocess.run([sys.executable,'tools/package_fm1.py'],cwd=ROOT,check=True)
 m=json.loads((ROOT/'build/fm1/manifest.json').read_text());p=json.loads((ROOT/'build/fm1/trial.json').read_text())
 app=(ROOT/'build/fm1/gb-fm1-NOT-FOR-INSTALL.bin').read_bytes();offset=m['cartridge_offset'];diag=make_rom()
+assert m['usb_updater'] is True, 'Public FM-1 templates require USB updating'
 assert app[offset:offset+len(diag)]==diag
 assert app[offset+len(diag):offset+m['cartridge_capacity']]==b'\xff'*(m['cartridge_capacity']-len(diag))
 out=ROOT/'web/firmware';out.mkdir(parents=True,exist_ok=True)
 shutil.copy2(ROOT/'build/fm1'/p['package'],out/'fm1-template.fwsc')
 meta={'product':p['product'],'package':'fm1-template.fwsc','sha256':p['sha256'],
       'cartridge_offset':offset,'cartridge_capacity':m['cartridge_capacity'],
+      'usb_updater':True,'usb_protocol':'fm1-ota-v1',
+      'protected_app_sha256':hashlib.sha256(app[:offset]+app[offset+m['cartridge_capacity']:]+b'\xff'*(0x8dfbc-len(app))).hexdigest(),
+      'loader_sha256':p['loader_sha256'],
       'app_bytes':len(app),'diagnostic_sha256':hashlib.sha256(diag).hexdigest(),
       'notice':'Original diagnostic only. User ROMs are inserted locally in the browser.',
       'hardware_status':'FM-1 trial; SMK37 is not enabled for flashing.'}

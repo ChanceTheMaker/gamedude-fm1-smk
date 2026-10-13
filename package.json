@@ -1,1 +1,9 @@
-{"name":"gamedude-fm1-smk","private":true,"type":"module","scripts":{"test":"node tests/audio.mjs && node tests/firmware.mjs","test:library":"node tests/rom_smoke.mjs"}}
+{
+  "name": "gamedude-fm1-smk",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node tests/audio.mjs && node tests/firmware.mjs && node tests/install_flow.mjs && node tests/restore.mjs && node tests/discovery.mjs && node tests/update_progress.mjs",
+    "test:library": "node tests/rom_smoke.mjs"
+  }
+}

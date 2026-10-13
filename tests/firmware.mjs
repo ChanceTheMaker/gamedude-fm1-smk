@@ -26,4 +26,6 @@ await assert.rejects(prepareFirmware(diagnostic,template,{...metadata,cartridge_
 await assert.rejects(prepareFirmware(diagnostic.subarray(0,100),template,metadata),/32/);
 const badRom=diagnostic.slice();badRom[0x134]^=1;
 await assert.rejects(prepareFirmware(badRom,template,metadata),/checksum/);
+for(const bad of [{usb_updater:false},{usb_protocol:'unknown'},{protected_app_sha256:'bad'},{loader_sha256:'bad'}])
+ await assert.rejects(prepareFirmware(diagnostic,template,{...metadata,...bad}),/USB updater/);
 console.log('PASS: 32/64/128/256/512 KiB cartridge packing, unchanged application code, padding, identity, integrity and invalid-ROM rejection.');

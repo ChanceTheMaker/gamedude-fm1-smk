@@ -98,6 +98,9 @@ def native(a,sources):
     assert 0x1c00000<=sym('gb_core1_main')<sym('_dsp_end')<=0x1c06000
     if a.target=='smk37':
         assert not re.search(r'\b(fm1_input_init|fm1_adc_init|fm1_audio_init|fm1_lcd_hw_init)$',symbols,re.M)
+    if a.target=='fm1':
+        for required in ['usb_start','ota_session.parm']:
+            assert re.search(r'\s'+re.escape(required)+r'$',symbols,re.M), 'Missing USB updater symbol: '+required
     binary=out/f'gb-{a.target}-NOT-FOR-INSTALL.bin';binary.write_bytes(image)
     result={'board':a.target,'installable':False,'hardware_validated':False,'bytes':len(image),
       'ram_bytes':sym('_bss_end')-0x1c08000,'pool_bytes':sym('_pool_end')-0x1c1a000,'cpu1_stack_bytes':sym('_cpu1_stacks_hi')-sym('_cpu1_stacks_lo'),
