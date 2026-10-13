@@ -1,0 +1,11 @@
+{
+  "product": "FM-1_930",
+  "package": "fm1-template.fwsc",
+  "sha256": "96e4b0613af19e0f9dbc87e96e25fa63f6767bc7937523b01675825497f88f84",
+  "cartridge_offset": 26352,
+  "cartridge_capacity": 524288,
+  "app_bytes": 553896,
+  "diagnostic_sha256": "5ee5649cc32110b0118b5e716ccae5cad4501a38979b09de64fb3d62f9889764",
+  "notice": "Original diagnostic only. User ROMs are inserted locally in the browser.",
+  "hardware_status": "FM-1 trial; SMK37 is not enabled for flashing."
+}

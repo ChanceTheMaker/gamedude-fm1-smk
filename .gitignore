@@ -1,0 +1,24 @@
+/build/
+__pycache__/
+*.sav
+*.gb
+*.gbc
+*.zip
+/HANDOFF.md
+/web/catalog.json
+!/web/diagnostic.gb
+# Local experiment, device administration and one-time import helpers.
+/tools/brand.py
+/tools/device.py
+/tools/diagnose_device.py
+/tools/finalize_preview.py
+/tools/finish_files.py
+/tools/github_repo.py
+/tools/import_recovery.py
+/tools/import_sources.py
+/tools/studio.py
+/tools/web_service.py
+/tools/validate_rom.mjs
+/web/studio.html
+/web/style.css
+/web/library.css
