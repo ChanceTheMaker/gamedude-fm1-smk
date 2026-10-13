@@ -1,46 +1,112 @@
-import {prepareFirmware} from './rom-firmware.js';
-import {Updater} from './vendor/fm1ota.js';
-import {validateStockPackage,STOCK_V15_SIZE} from './vendor/fm1pkg.js';
-import {restoreOriginal} from './restore-firmware.js';
-const $=id=>document.getElementById(id);let rom=null,filename='',prepared=null,access=null,device=null,busy=false,downloadUrl=null,stock=null;
+﻿import {prepareFirmware} from './rom-firmware.js?v=20261013';
+import {Updater} from './vendor/fm1ota.js?v=20261013';
+import {installFirmware,fm1Identity} from './install-firmware.js?v=20261013';
+import {restoreLatest} from './restore-firmware.js?v=20261013';
+import {createProgress} from './update-progress.js?v=20261013';
+const $=id=>document.getElementById(id);
+let rom=null,filename='',prepared=null,access=null,busy=false,downloadUrl=null,lastAction=null;
+const progress=createProgress($('install-log-heading'));
 const message=s=>$('flash-status').textContent=s;
-function controls(){const fm=$('flash-model').value==='fm1';$('build-firmware').disabled=busy||!rom||!fm;$('connect-device').disabled=busy||!fm;$('flash-device').disabled=busy||!prepared||!device||!fm;$('flash-model').disabled=busy;$('stock-file').disabled=busy||!fm;$('restore-device').disabled=busy||!stock||!device||!fm;document.querySelectorAll('#rom,#demo,#openLibrary').forEach(e=>e.disabled=busy);}
-function available(){const fm=$('flash-model').value==='fm1';$('flash-availability').textContent=fm?'FM-1 trial firmware. Chrome or Edge with USB MIDI access.':'SMK37 controls are available in the simulator. Hardware flashing is not enabled for this development build.';controls();}
-document.addEventListener('gamedude-rom',e=>{rom=new Uint8Array(e.detail.bytes);filename=e.detail.name;prepared=null;$('build-review').hidden=true;if(downloadUrl)URL.revokeObjectURL(downloadUrl);$('rom-summary').hidden=false;$('rom-name').textContent=e.detail.title;$('rom-info').textContent=`${(rom.length/1024).toFixed(0)} KiB · ${filename}`;message('Cartridge ready. Prepare firmware to put it on your FM-1.');controls();});
-document.addEventListener('gamedude-rom-clear',()=>{rom=null;prepared=null;$('build-review').hidden=true;$('rom-summary').hidden=true;controls();});
-$('flash-model').onchange=available;
-$('connect-device').onclick=async()=>{busy=true;controls();try{if(!navigator.requestMIDIAccess)throw Error('Use Chrome or Edge for USB flashing. Browser play works without MIDI.');$('device-status').textContent='Allow MIDI access in the browser prompt to connect your FM-1.';access=await navigator.requestMIDIAccess({sysex:true});$('device-status').textContent='Looking for your FM-1…';const updater=new Updater(access);device=await updater.find(id=>id.model==='FM-1'||id.model==='ota-FM-1');if(!device)throw Error('No FM-1 found. Connect it by USB and close other apps using MIDI.');$('device-status').textContent=`Connected: ${device.id.text}`;device.link.close();message('Device connected. Prepare a game or restore the original firmware.');}catch(e){device=null;$('device-status').textContent=e.message;}finally{busy=false;controls();}};
-$('build-firmware').onclick=async()=>{busy=true;controls();$('flash-progress').hidden=false;$('flash-progress').removeAttribute('value');message('Preparing your cartridge locally…');try{
- const response=await fetch('firmware/template.json');if(!response.ok)throw Error('Firmware template is unavailable.');const metadata=await response.json();
- const packageResponse=await fetch('firmware/'+metadata.package);if(!packageResponse.ok)throw Error('Firmware download failed.');
- prepared=await prepareFirmware(rom,new Uint8Array(await packageResponse.arrayBuffer()),metadata);
- if(downloadUrl)URL.revokeObjectURL(downloadUrl);downloadUrl=URL.createObjectURL(new Blob([prepared.bytes],{type:'application/octet-stream'}));$('download-firmware').href=downloadUrl;$('download-firmware').download='gamedude-'+filename.replace(/[^a-z0-9_-]/gi,'_')+'.fwsc';
- $('build-title').textContent=`${$('rom-name').textContent} → FM-1`;$('build-details').textContent=`${prepared.product} · ${(prepared.bytes.length/1024).toFixed(0)} KiB package · SHA-256 ${prepared.sha256.slice(0,16)}…`;$('build-review').hidden=false;message('Firmware verified. Connect your FM-1, then press Flash FM-1.');
- }catch(e){prepared=null;message(e.message);}finally{$('flash-progress').hidden=true;busy=false;controls();}};
-$('flash-device').onclick=async()=>{if(!prepared||!device)return;busy=true;controls();$('flash-progress').hidden=false;$('flash-progress').removeAttribute('value');document.dispatchEvent(new Event('gamedude-pause'));let wake;
+function controls(){
+ const fm=$('flash-model').value==='fm1';
+ $('build-firmware').disabled=busy||!rom||!fm;$('connect-device').disabled=busy||!fm;
+ $('flash-device').disabled=busy||!prepared||!fm;$('flash-model').disabled=busy;
+ $('restore-device').disabled=busy||!fm;$('retry-install').disabled=busy;
+ document.querySelectorAll('#rom,#demo,#openLibrary').forEach(e=>e.disabled=busy);
+}
+function available(){
+ $('flash-availability').textContent=$('flash-model').value==='fm1'?
+  'FM-1 trial firmware. Chrome or Edge with USB MIDI access.':
+  'SMK37 controls are available in the simulator. Hardware flashing is not enabled for this development build.';
+ controls();
+}
+function log(text){
+ const lines=$('install-log').textContent.split('\n').filter(Boolean);
+ lines.push(new Date().toLocaleTimeString()+'  '+text);
+ $('install-log').textContent=lines.slice(-200).join('\n');
+ $('install-log').scrollTop=$('install-log').scrollHeight;
+}
+function reveal(){
+ $('install-progress').open=true;$('install-progress').scrollIntoView({block:'start',behavior:'smooth'});
+ $('install-progress').focus({preventScroll:true});
+}
+async function midi(){
+ if(!window.isSecureContext||!navigator.requestMIDIAccess)throw Error('Open this site in Chrome or Edge over HTTPS (or localhost) for USB installation.');
+ $('device-status').textContent='Allow MIDI access in the browser prompt.';
+ let timer;
+ try{return await Promise.race([
+  navigator.requestMIDIAccess({sysex:true}),
+  new Promise((_,reject)=>{timer=setTimeout(()=>reject(Error('MIDI permission is still pending. Allow the browser prompt, then retry.')),20000);})
+ ]);}finally{clearTimeout(timer);}
+}
+function readableError(e){return e.name==='NotAllowedError'?'MIDI access was blocked. Allow MIDI for this site in Chrome or Edge, then retry.':e.message;}
+function confirmGeneric(identity){
+ return new Promise(resolve=>{
+  const dialog=$('confirm-loader');$('loader-identity').textContent=identity;
+  dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='fm1'),{once:true});dialog.showModal();
+ });
+}
+document.addEventListener('gamedude-rom',e=>{
+ if(busy)return;
+ rom=new Uint8Array(e.detail.bytes);filename=e.detail.name;prepared=null;lastAction=null;
+ $('retry-install').hidden=true;$('build-review').hidden=true;
+ if(downloadUrl)URL.revokeObjectURL(downloadUrl);
+ $('rom-summary').hidden=false;$('rom-name').textContent=e.detail.title;
+ $('rom-info').textContent=`${(rom.length/1024).toFixed(0)} KiB · ${filename}`;
+ message('Cartridge ready. Prepare firmware to put it on your FM-1.');controls();
+});
+document.addEventListener('gamedude-rom-clear',()=>{if(busy)return;rom=null;prepared=null;$('build-review').hidden=true;$('rom-summary').hidden=true;controls();});
+$('flash-model').onchange=()=>{lastAction=null;$('retry-install').hidden=true;available();};
+$('connect-device').onclick=async()=>{
+ if(busy)return;busy=true;controls();reveal();progress.start('connect');
  try{
-   try{wake=await navigator.wakeLock?.request('screen');}catch{}
-   const updater=new Updater(access),step=(phase,value)=>{const names={start:'Starting update',verify:'Checking firmware',loader:'Starting device updater',write:'Verifying / writing firmware',reboot:'Waiting for device restart',done:'Installed and verified'};message((names[phase]||phase)+(typeof value==='number'?` · ${value} blocks`:typeof value==='string'?` · ${value}`:'')+'. Keep USB connected.');};
-   if(device.id.model==='ota-FM-1'){if(!await updater.resume(prepared.image,step,prepared.product))throw Error('Could not resume the update. Reconnect USB and connect again.');}
-   else await updater.install(prepared.image,prepared.product,step);
-   $('flash-progress').value=100;$('device-status').textContent='Connected: '+prepared.product;message('Installed and verified. Press PLAY on your FM-1 to start.');device=null;
- }catch(e){message(e.message+' Reconnect and use Connect FM-1 to retry.');device=null;}finally{await wake?.release().catch(()=>{});busy=false;controls();}
+  access=await midi();const up=new Updater(access,log),dev=await up.findAny(fm1Identity);
+  if(!dev)throw Error('No FM-1 identity reply. Use a USB data cable, connect only the FM-1, and close other MIDI apps. An active loader can be resumed with Install / resume.');
+  try{$('device-status').textContent='Connected: '+dev.id.text;log('Connected: '+dev.id.text+' on '+dev.name);}
+  finally{await dev.link.close();}
+  progress.stage('ready','Device connected');message('Ready to install a game or restore M-VAVE firmware.');
+ }catch(e){$('device-status').textContent=readableError(e);log(readableError(e));progress.fail();}
+ finally{busy=false;controls();}
 };
-$('stock-file').onchange=async e=>{
- stock=null;const file=e.target.files[0];if(!file){$('restore-status').textContent='No original firmware selected.';controls();return;}
- busy=true;controls();try{if(file.size!==STOCK_V15_SIZE)throw Error('Select the unmodified official FM-1 V15 file (FM-1.fwsc).');
- const bytes=new Uint8Array(await file.arrayBuffer()),verified=await validateStockPackage(bytes);stock=bytes;
- $('restore-status').textContent=verified.product+' verified. Connect your FM-1, then press Restore original FM-1 firmware.';
- }catch(e){$('restore-status').textContent=e.message;}finally{busy=false;controls();}
+$('build-firmware').onclick=async()=>{
+ if(busy||!rom)return;busy=true;controls();message('Preparing your cartridge locally…');
+ try{
+  const response=await fetch('firmware/template.json',{cache:'no-store'});if(!response.ok)throw Error('Firmware template is unavailable.');
+  const metadata=await response.json(),download=await fetch('firmware/'+metadata.package,{cache:'no-store'});
+  if(!download.ok)throw Error('Firmware download failed.');
+  prepared=await prepareFirmware(rom,new Uint8Array(await download.arrayBuffer()),metadata);
+  if(downloadUrl)URL.revokeObjectURL(downloadUrl);
+  downloadUrl=URL.createObjectURL(new Blob([prepared.bytes],{type:'application/octet-stream'}));
+  $('download-firmware').href=downloadUrl;$('download-firmware').download='gamedude-'+filename.replace(/[^a-z0-9_-]/gi,'_')+'.fwsc';
+  $('build-title').textContent=`${$('rom-name').textContent} → FM-1`;
+  $('build-details').textContent=`${prepared.product} · ${(prepared.bytes.length/1024).toFixed(0)} KiB · USB updating included and verified`;
+  $('build-review').hidden=false;message('Firmware verified. Connect your FM-1 by USB, then press Install / resume.');
+ }catch(e){prepared=null;message(readableError(e));}
+ finally{busy=false;controls();}
 };
-$('restore-device').onclick=async()=>{
- if(busy||!stock||!device||$('flash-model').value!=='fm1')return;
- busy=true;controls();document.dispatchEvent(new Event('gamedude-pause'));$('flash-progress').hidden=false;$('flash-progress').removeAttribute('value');let wake;
- try{try{wake=await navigator.wakeLock?.request('screen');}catch{}
- await restoreOriginal(access,device,stock,(phase,value)=>{$('restore-status').textContent='Restoring original firmware: '+phase+(value!==undefined?' - '+value:'')+'. Keep USB connected.';});
- $('flash-progress').value=100;$('device-status').textContent='Original FM-1_015 firmware confirmed.';$('restore-status').textContent='Original FM-1 V15 firmware restored and restart verified.';message('Your FM-1 is back on its original firmware.');stock=null;$('stock-file').value='';
- }catch(e){$('restore-status').textContent=e.message+' Reconnect and use Connect FM-1 before retrying.';}
- finally{device=null;await wake?.release().catch(()=>{});busy=false;controls();}
+async function run(action){
+ if(busy||$('flash-model').value!=='fm1'||(action==='game'&&!prepared))return;
+ const game=prepared;lastAction=action;busy=true;controls();$('retry-install').hidden=true;
+ $('install-log').textContent='';reveal();progress.start(action==='restore'?'prepare':'connect');
+ document.dispatchEvent(new Event('gamedude-pause'));let wake;
+ try{
+  try{wake=await navigator.wakeLock?.request('screen');}catch{}
+  access=await midi();const options={confirmGeneric};
+  const product=action==='restore'?await restoreLatest(access,log,options):await installFirmware(access,game.install,log,options);
+  progress.done();$('device-status').textContent='Restart verified: '+product;
+  if(action==='restore'){$('restore-status').textContent='M-VAVE V15 restored and restart verified.';message('Your FM-1 is back on its original M-VAVE firmware.');}
+  else message('Installed and restart verified. Press PLAY on your FM-1 to start.');
+ }catch(e){
+  const error=readableError(e);log(error);message(error);progress.fail();
+  if(action==='restore')$('restore-status').textContent=error;
+  $('retry-install').hidden=false;$('device-status').textContent='Installation not confirmed. See the log and retry instructions below.';
+ }finally{await wake?.release().catch(()=>{});busy=false;controls();}
+}
+$('flash-device').onclick=()=>run('game');$('restore-device').onclick=()=>run('restore');
+$('retry-install').onclick=()=>{if(lastAction)run(lastAction);};
+$('save-install-log').onclick=()=>{
+ const a=document.createElement('a'),url=URL.createObjectURL(new Blob([$('install-log').textContent],{type:'text/plain'}));
+ a.href=url;a.download='gamedude-install-log.txt';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
 };
 window.addEventListener('beforeunload',e=>{if(busy){e.preventDefault();e.returnValue='';}});
 available();

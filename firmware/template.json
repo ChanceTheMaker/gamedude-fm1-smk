@@ -7,5 +7,9 @@
   "app_bytes": 553896,
   "diagnostic_sha256": "5ee5649cc32110b0118b5e716ccae5cad4501a38979b09de64fb3d62f9889764",
   "notice": "Original diagnostic only. User ROMs are inserted locally in the browser.",
-  "hardware_status": "FM-1 trial; SMK37 is not enabled for flashing."
+  "hardware_status": "FM-1 trial; SMK37 is not enabled for flashing.",
+  "usb_updater": true,
+  "usb_protocol": "fm1-ota-v1",
+  "protected_app_sha256": "881ea8aa3d09b71698de1a2d13747bd60a58085c8cb3d87694dba8e48922d602",
+  "loader_sha256": "804ae28b788a037cb2c23c73ce08634fd84da541e0cb71103e402f8fc65e51f5"
 }

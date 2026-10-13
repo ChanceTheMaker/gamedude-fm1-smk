@@ -1,3 +1,4 @@
+import {createTransferCounter,reportProgress} from '../update-progress.js?v=20261013';
 // SPDX-License-Identifier: GPL-3.0-only
 // Copyright (C) 2026 Leo Kuroshita (@kurogedelic), Hügelton Instruments
 //
@@ -58,6 +59,7 @@ function parseRequest(pkt) {
 }
 
 function parseIdentity(pkt) {
+  if (pkt[0] !== 0xF0 || pkt[pkt.length-1] !== 0xF7) return null;
   const d = unpack7(pkt.slice(1, -1));
   if (d.length !== 34 || d[0] !== 0 || d[1] !== 0x59 || d[2] !== 0x11) return null;
   const txt = String.fromCharCode(...d.slice(6, 33)).replace(/\0+$/, "");
@@ -132,6 +134,70 @@ export class Updater {
     return null;
   }
 
+  // Probe one output at a time, listening on every input. macOS can label
+  // the loader's input and output differently. Discovery sends identity only.
+  async findAny(filter, {probeMs=700, openMs=1500, deadline=Infinity}={}) {
+    const inputs=[...this.access.inputs.values()].filter(p=>p.state!=='disconnected');
+    const outputs=[...this.access.outputs.values()].filter(p=>p.state!=='disconnected');
+    const opened=new Set(), listeners=[], matches=[];
+    let querying=null, selected=null;
+    const bounded=(operation,ms)=>new Promise((resolve,reject)=>{
+      const timer=setTimeout(()=>reject(Error('MIDI port timed out')),ms);
+      Promise.resolve(operation).then(v=>{clearTimeout(timer);resolve(v);},e=>{clearTimeout(timer);reject(e);});
+    });
+    const closePort=async p=>{try{await bounded(p.close(),openMs);}catch(e){this.log('Could not release MIDI port '+p.name+': '+e.message);}};
+    const open=async p=>{
+      let expired=false;
+      try{
+        if(p.connection!=='open')opened.add(p);
+        const pending=p.open();
+        Promise.resolve(pending).then(()=>{if(expired&&opened.has(p))return closePort(p);},()=>{});
+        await bounded(pending,openMs);return true;
+      }catch(e){expired=true;this.log('Cannot open MIDI port '+p.name+': '+e.message);return false;}
+    };
+    try {
+      for(const input of inputs){
+        if(!await open(input))continue;
+        const receive=ev=>{
+          if(!querying)return;
+          const id=parseIdentity(Array.from(ev.data));
+          if(!id)return;
+          this.log('Identity '+id.text+' on input "'+input.name+'", queried output "'+querying.name+'".');
+          if(filter(id)&&!matches.some(m=>m.input===input&&m.output===querying&&m.id.text===id.text))matches.push({input,output:querying,id});
+        };
+        input.addEventListener('midimessage',receive);listeners.push([input,receive]);
+      }
+      for(const output of outputs){
+        if(Date.now()>=deadline)break;
+        if(!await open(output))continue;
+        querying=output;
+        try{output.send(HS_QUERY);await sleep(Math.max(0,Math.min(probeMs,deadline-Date.now())));}catch(e){this.log('Identity query failed: '+e.message);}
+        querying=null;
+      }
+      if(new Set(matches.map(m=>m.input)).size>1||new Set(matches.map(m=>m.id.text)).size>1)
+        throw Error('More than one matching MIDI device replied. Connect only the target FM-1 and retry. No programming started.');
+      selected=matches.find(m=>m.input.name===m.output.name)||matches[0];
+    } finally {
+      for(const [input,receive] of listeners)input.removeEventListener('midimessage',receive);
+      await Promise.allSettled([...opened].filter(p=>p!==selected?.input&&p!==selected?.output).map(closePort));
+    }
+    if(!selected)return null;
+    const {input,output,id}=selected,link=new Link(input,output),close=link.close.bind(link);
+    let released=false;
+    link.close=()=>{if(released)return;released=true;close();return Promise.allSettled([input,output].filter(p=>opened.has(p)).map(closePort));};
+    return {id,link,name:output.name,inputName:input.name};
+  }
+
+  async waitForAny(filter, ms) {
+    const end=Date.now()+ms;
+    do {
+      const dev=await this.findAny(filter,{deadline:end});
+      if(dev)return dev;
+      if(Date.now()<end)await sleep(Math.min(500,end-Date.now()));
+    } while(Date.now()<end);
+    return null;
+  }
+
   async waitFor(filter, ms) {
     const end = Date.now() + ms;
     while (Date.now() < end) {
@@ -145,6 +211,8 @@ export class Updater {
   // serve read requests until the device asks for one of the finish addresses; stops early
   // when the port disappears (lost: true) instead of waiting out idleMs
   async serve(link, image, finishAddr, idleMs, onProgress) {
+    const count = createTransferCounter(image.length), writing = finishAddr === 0xF0000000;
+    reportProgress({phase:writing?'transfer':'loader',bytes:0,total:image.length});
     let served = 0, last = Date.now();
     for (;;) {
       const pkt = await link.read(1000);
@@ -157,8 +225,11 @@ export class Updater {
       if (!r) continue;
       last = Date.now();
       if (r.addr === 0xE0000000 || r.addr === 0xF0000000) {
-        link.send(response(r.addr, [...new TextEncoder().encode("success"), 0]));
-        if (r.addr === finishAddr) return { served, finished: true };
+        if(!link.send(response(r.addr, [...new TextEncoder().encode("success"), 0])))return {served,finished:false,lost:true};
+        if (r.addr === finishAddr) {
+          reportProgress({phase:writing?'reboot':'loader'});
+          return { served, finished: true };
+        }
         continue;
       }
       if (r.len > MAXDATA || r.addr + r.len > image.length) throw fail("badreq", `bad request ${r.addr.toString(16)}+${r.len}`);
@@ -167,6 +238,7 @@ export class Updater {
         return { served, finished: false, lost: true };
       }
       served++;
+      if (writing) reportProgress({phase:'transfer',...count(r.addr,r.len)});
       if (onProgress) onProgress(served, r.addr);
     }
   }
