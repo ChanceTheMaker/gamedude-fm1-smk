@@ -1,3 +1,4 @@
+import {initHomebrew} from './homebrew.js?v=20261013';
 import {bootSplash,idleLogo,landingDing} from './branding.js';
 import {cartridge} from './zip.js';
 const $=id=>document.getElementById(id),ctx=$('screen').getContext('2d'),image=ctx.createImageData(160,144);
@@ -54,7 +55,7 @@ function present(){requestAnimationFrame(present);if(videoDirty&&loaded&&!paused
 requestAnimationFrame(present);
 function download(bytes,name){const url=URL.createObjectURL(new Blob([bytes]));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 async function load(buffer,name='cartridge.gb'){
-  if(loading)return;loading=true;document.dispatchEvent(new Event('gamedude-rom-clear'));status('Opening cartridge…');
+  if(loading||$('rom').disabled)return false;loading=true;document.dispatchEvent(new Event('gamedude-rom-clear'));status('Opening cartridge…');
   try{await ensureEngine();const rom=await cartridge(buffer);if(rom.byteLength>8388608)throw Error('Cartridge exceeds 8 MiB.');
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',rom)),b=>b.toString(16).padStart(2,'0')).join('');
     saveNow();release();loaded=false;flushAudio();new Uint8Array(core.memory.buffer,core.gp_upload(),rom.byteLength).set(new Uint8Array(rom));
@@ -65,7 +66,7 @@ async function load(buffer,name='cartridge.gb'){
     await bootSplash(ctx,()=>landingDing(audio,Number($('volume').value)));
     document.dispatchEvent(new CustomEvent('gamedude-rom',{detail:{bytes:rom.slice(0),name,title:gameName}}));
     loaded=true;paused=false;nextFrame=0;rateStart=rateFrames=0;$('pause').textContent='Pause';$('title').textContent=gameName;$('lamp').classList.add('on');$('pause').disabled=$('reset').disabled=false;$('save').disabled=$('exportSave').disabled=!saveSize;
-    status('Playing · '+gameName);$('saved').textContent=saveSize?'Battery RAM saves automatically in this browser.':'This cartridge has no save RAM.';$('screen').focus({preventScroll:true});
+    status('Playing · '+gameName);$('saved').textContent=saveSize?'Battery RAM saves automatically in this browser.':'This cartridge has no save RAM.';$('screen').focus({preventScroll:true});return true;
   }catch(e){status(e.message||'Could not decompress this ZIP. Try an extracted .gb file.');if(!loaded){$('lamp').classList.remove('on');$('pause').disabled=$('reset').disabled=$('exportSave').disabled=$('save').disabled=true;}}
   finally{loading=false;}
 }
@@ -113,3 +114,5 @@ if(['localhost','127.0.0.1'].includes(location.hostname)){
 }
 if(!allGames.length){if($('library-details'))$('library-details').hidden=true;$('openLibrary').disabled=true;}
 if(!loaded&&!loading)idleLogo(ctx);
+
+initHomebrew({canLoad:()=>!loading&&!$('rom').disabled,startAudio,load});

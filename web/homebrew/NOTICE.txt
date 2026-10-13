@@ -1,0 +1,81 @@
+GAMEDUDE STOCK HOMEBREW
+
+These independently authored cartridges are distributed unmodified under the licenses below. No endorsement is implied. Each creator retains their copyright. All cartridges passed an emulator startup/input smoke test and FM-1 firmware packing checks; complete gameplay and physical hardware compatibility are not certified.
+
+Tobu Tobu Girl / 2017 release (Rev.01)
+Tangram Games; music by potato-tan
+License: MIT + CC-BY-4.0 (see licenses/tobutobugirl.txt)
+Creator/download: https://tangramgames.itch.io/tobutobugirl
+Source: https://github.com/SimonLarsen/tobutobugirl/tree/048a22c
+ROM SHA-256: 5d3871cae77db2287807e8914fd21f76203e73aa3fec20955489d45cb4571d8f
+None. Original ROM bytes.
+
+GB-Wordyl / 1.0.8 (English, MBC5)
+bbbbbr and contributors; original base by stacksmashing
+License: GPL-3.0 (see licenses/gb-wordyl.txt)
+Creator/download: https://bbbbbr.itch.io/gb-wordyl
+Source: https://github.com/bbbbbr/gb-wordyl/tree/e0f7440e39d562bc6d89dc3f900851cd36d99212
+ROM SHA-256: ab3eef3bccaa96f563c401b662420dbe3cefafc1ea714115dda7226e52e5d6c3
+None. Original ROM bytes.
+Corresponding source: sources/gb-wordyl-1.0.8-e0f7440.zip
+Source SHA-256: 8d7db839eda90db060e74c8d73569dc835c2291f45f89efb7afc2b849f0d79a1
+
+2048 / 1677881
+Wyatt Ferguson
+License: MIT (see licenses/2048-gb.txt)
+Creator/download: https://raw.githubusercontent.com/wyattferguson/2048-gb/1677881/2048.gb
+Source: https://github.com/wyattferguson/2048-gb/tree/1677881
+ROM SHA-256: 46f9ab6a5e9acb81c76e9c2c6526db1ed4e03b4fb6f36c23fb786e31f9659fc5
+None. Original ROM bytes.
+
+Libbet and the Magic Floor / v0.08
+Damian Yerrick; original Magic Floor by Martin Korth
+License: Zlib (see licenses/libbet.txt)
+Creator/download: https://github.com/pinobatch/libbet/releases/download/v0.08/libbet.gb
+Source: https://github.com/pinobatch/libbet/tree/v0.08
+ROM SHA-256: 3607412031c8287cf878299ce96e581e85b852dde703806343b95576fa3ff1a9
+None. Original ROM bytes.
+
+Breakout / e379604
+Fabien Loison
+License: WTFPL-2.0 (see licenses/gameboy-examples.txt)
+Creator/download: https://raw.githubusercontent.com/flozz/gameboy-examples/e379604/10-breakout/breakout.gb
+Source: https://github.com/flozz/gameboy-examples/tree/e379604
+ROM SHA-256: a120cce1d209f21b1d1e8e5daacb1fec9054405b25f3899bd511fd01642e6cbf
+None. Original ROM bytes.
+
+Tic-Tac-Toe / e379604
+Fabien Loison
+License: WTFPL-2.0 (see licenses/gameboy-examples.txt)
+Creator/download: https://raw.githubusercontent.com/flozz/gameboy-examples/e379604/03-tic-tac-toe/tictactoe.gb
+Source: https://github.com/flozz/gameboy-examples/tree/e379604
+ROM SHA-256: d1963b1ab92cc376c0e7c0adbda01ae2c96712d62ccd6930dc12fae21f550d75
+None. Original ROM bytes.
+
+Game of Life / 16ef5f1
+Daniel Borges (MsK`)
+License: BSD-3-Clause (see licenses/GB-GameOfLife.txt)
+Creator/download: https://raw.githubusercontent.com/msklywenn/GB-GameOfLife/16ef5f1/rom.gb
+Source: https://github.com/msklywenn/GB-GameOfLife/tree/16ef5f1
+ROM SHA-256: 2b0f29d7db3281cf929434807a450ccb54196b4db09cc5055fc2d0b4ab5b43fb
+None. Original ROM bytes.
+
+Bytewave / v0.8.3
+vec2pt
+License: MIT (see licenses/gb-bytewave.txt)
+Creator/download: https://github.com/vec2pt/gb-bytewave/releases/download/v0.8.3/bytewave.gb
+Source: https://github.com/vec2pt/gb-bytewave/tree/v0.8.3
+ROM SHA-256: 6804082c7a0d41bf637db9b4a60726afbe27eff3a9c4cdc40734687e5ee5f529
+None. Original ROM bytes.
+
+Gamepad Tester / e379604
+Fabien Loison
+License: WTFPL-2.0 (see licenses/gameboy-examples.txt)
+Creator/download: https://raw.githubusercontent.com/flozz/gameboy-examples/e379604/02-gamepad/gamepad.gb
+Source: https://github.com/flozz/gameboy-examples/tree/e379604
+ROM SHA-256: b19e142f87b5703f48a186636ca40172f747d786601060d3afc2e84f30c6cca3
+None. Original ROM bytes.
+
+GB-Wordyl source package is the upstream 1.0.8 source at e0f7440e39d562bc6d89dc3f900851cd36d99212, including dictionaries, tools, assets, build scripts and third-party notices. To build: install GBDK-2020 (upstream documents 4.2.0), set GBDK_HOME, run make dictionaries, then make CART_TYPE=mbc5 LANG_CODE=en. Original upstream ROM distributed unchanged; a bit-identical local rebuild has not been verified. Full contributor credits are in the source README and files.
+Libbet is based on Magic Floor: Copyright 2002, 2012 Martin Korth; 2018, 2024 Damian Yerrick (upstream README).
+Tobu Tobu Girl: game design Simon Jonas Larsen and Lukas Erritso Hansen; programming Simon Jonas Larsen; art Lukas Erritso Hansen; sound and music potato-tan. Assets CC-BY-4.0; code MIT. See license file for terms and attribution.

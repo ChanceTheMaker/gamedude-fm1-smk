@@ -4,6 +4,7 @@
   "type": "module",
   "scripts": {
     "test": "node tests/audio.mjs && node tests/firmware.mjs && node tests/install_flow.mjs && node tests/restore.mjs && node tests/discovery.mjs && node tests/update_progress.mjs",
-    "test:library": "node tests/rom_smoke.mjs"
+    "test:library": "node tests/rom_smoke.mjs",
+    "test:homebrew": "node tests/homebrew.mjs"
   }
 }

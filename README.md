@@ -6,7 +6,7 @@ Play original Game Boy cartridges in your browser, then prepare and flash an FM-
 
 ## Browser player
 
-Drop in a `.gb` file or a ZIP containing one `.gb`. ROM processing and firmware preparation happen in your browser. No game files are uploaded to a server. An original diagnostic cartridge is included; commercial games and Nintendo boot ROMs are not.
+Drop in a `.gb` file or a ZIP containing one `.gb`. ROM processing and firmware preparation happen in your browser. No game files are uploaded to a server. Nine licensed homebrew games/apps and an original diagnostic cartridge are included; commercial game ROMs and Nintendo boot ROMs are not.
 
 Choose **FM-1**, **SMK-37 Pro**, **SMK-37 Elite**, or **Game Boy** in the Simulator selector. The Game Boy option adds a classic gray handheld shell, green display and magenta A/B buttons. FM-1 and SMK37 offer clickable instrument keys and pads. Switching layouts keeps the current game running.
 
@@ -97,6 +97,19 @@ Restore original firmware: connect the FM-1, expand the restore section, and pre
 
 Dual-core hardware trial: FM-1_934 was installed and verified responding over USB. CPU1 now completes immutable-frame scaling while CPU0 retains GB/APU emulation, audio interrupts, controls and USB. Initial hardware samples confirmed core ID 1, an increasing completed-job count, and no CPU1 faults or fallbacks. This corrects the earlier assumption that CPU1 never started: trial 933 reached its worker loop but fell back before accepting a frame. Build 934 fixes late-completion timeout handling and removes per-pixel division from the scaler. Host tests, FM-1/SMK builds and simulated install/restore pass. The owner confirmed normal picture, controls and sound. Longer stability testing remains pending. The public flasher now serves FM-1_936, which retains this CPU1 implementation and includes the inner directional keys and grouped LED feedback. See [CPU1 trial notes](docs/CPU1_TRIAL.md).
 
+The site uses a classic handheld-inspired theme: warm gray plastic, green LCD surfaces, blue labels and berry action buttons. One large molded console shell surrounds the content; the individual panels and device simulator shapes are retained.
+
 The hero tour shows one instrument at a time, then zooms into its screen: FM-1 with Block Drop, SMK-37 Pro with Super Pixel, and SMK-37 Elite with Pocket Tennis. Pause or choose a device using the tour controls. Reduced-motion preferences start the tour paused. The screens are original AI-generated retro-style mock game illustrations, not commercial screenshots or included playable games. No commercial ROM is distributed.
 
 Restore validation: `node tests/restore.mjs <official-FM-1-V15.fwsc>` exercises package rejection and install/resume routing without opening MIDI. The retained loader simulator also passed GameDude-to-original-V15 restoration with preservation of the boot region and writes restricted to the expected ranges. This does not substitute for a physical original-firmware restore test.
+
+
+## Included homebrew
+
+The Choose panel offers Tobu Tobu Girl, GB-Wordyl (English), 2048, Libbet and the Magic Floor, Breakout, Tic-Tac-Toe, Game of Life, Bytewave and Gamepad Tester. Select a cartridge and press **Play this cartridge**, then optionally prepare it for FM-1. Each install contains one game; this is not an on-device multicart menu.
+
+`web/homebrew/catalog.json` records upstream versions, hashes, licenses and sources. Full notices are in `web/homebrew/NOTICE.txt` and the site's Credits page. Original ROM bytes are retained; GB-Wordyl's GPL corresponding source archive is served alongside its ROM. A free download alone is not redistribution permission: only explicitly licensed cartridges are bundled.
+
+`npm run test:homebrew` checks every bundled cartridge's identity, starts it in the shipped WebAssembly core, exercises controls for 1,800 frames and prepares FM-1 firmware while verifying the protected USB updater. This is smoke coverage, not complete gameplay or physical hardware testing. Bytewave uses timing-sensitive wave-channel synthesis; its audio is approximate. Browser battery RAM persists locally; FM-1 cartridge RAM is lost at restart.
+
+The public staging tool only copies manifest-listed homebrew files after verifying their ROM/source hashes, licenses, DMG compatibility and 512 KiB hardware size limit. Private local libraries remain excluded.

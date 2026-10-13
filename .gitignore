@@ -22,3 +22,7 @@ __pycache__/
 /web/studio.html
 /web/style.css
 /web/library.css
+
+# Audited freely redistributable stock cartridges and corresponding source only.
+!/web/homebrew/*.gb
+!/web/homebrew/sources/gb-wordyl-1.0.8-e0f7440.zip

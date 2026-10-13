@@ -12,6 +12,25 @@ files=['hero.js','artwork/game-stack.png','artwork/game-trail.png','artwork/game
        'vendor/fm1pkg.js','vendor/fm1ota.js','firmware/fm1-template.fwsc',
        'firmware/template.json','firmware/fm1-original.fwsc','firmware/original.json','firmware/GPL-3.0.txt','firmware/MIT-Peanut-GB.txt',
        'firmware/Apache-2.0.txt','firmware/NOTICE.txt']
+files.extend(['homebrew.js','homebrew/catalog.json','homebrew/NOTICE.txt'])
+stock=json.loads((WEB/'homebrew/catalog.json').read_text())
+assert stock['schema']==1
+for game in stock['games']:
+    name=game['file']
+    assert name.endswith('.gb') and '/' not in name and '\\' not in name
+    rom=(WEB/'homebrew'/name).read_bytes()
+    assert len(rom)==game['bytes'] and 32768<=len(rom)<=524288
+    assert rom[0x143]!=0xc0, 'GBC-only stock cartridge'
+    assert hashlib.sha256(rom).hexdigest()==game['sha256'],name
+    for field in ['file','license_file','source_file']:
+        if field not in game: continue
+        rel=game[field]
+        assert not Path(rel).is_absolute() and '..' not in Path(rel).parts
+        asset=WEB/'homebrew'/rel
+        assert asset.resolve().is_relative_to((WEB/'homebrew').resolve()) and asset.is_file()
+        if field=='source_file': assert hashlib.sha256(asset.read_bytes()).hexdigest()==game['source_sha256']
+        elif field=='license_file': assert asset.stat().st_size>100
+        if 'homebrew/'+rel not in files: files.append('homebrew/'+rel)
 assert (WEB/'diagnostic.gb').read_bytes()==make_rom(),'Unexpected diagnostic ROM'
 metadata=json.loads((WEB/'firmware/template.json').read_text())
 assert hashlib.sha256((WEB/'firmware/fm1-template.fwsc').read_bytes()).hexdigest()==metadata['sha256']

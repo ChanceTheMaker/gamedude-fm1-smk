@@ -24,6 +24,7 @@ function controls(){
  $('flash-device').disabled=busy||!prepared||!fm;$('flash-model').disabled=busy;
  $('restore-device').disabled=busy||!fm;$('retry-install').disabled=busy;
  document.querySelectorAll('#rom,#demo,#openLibrary').forEach(e=>e.disabled=busy);
+ document.querySelectorAll('[data-homebrew]').forEach(e=>e.disabled=busy||$('stock-game').dataset.ready!=='true'||$('stock-game').dataset.loading==='true');
 }
 function available(){
  $('flash-availability').textContent=$('flash-model').value==='fm1'?
