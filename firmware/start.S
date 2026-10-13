@@ -30,10 +30,17 @@ GB_ISR gb_isr_scan, gb_scan_irq
 .section .text.core1,"ax",@progbits
 .globl gb_core1_start
 gb_core1_start:
+    r0 = video_stage
+    r1 = 1
+    [r0] = r1
+    csync
     cli
     icfg = 0
     usp = _cpu1_ustack_top
     sp = _cpu1_sstack_top
     ssp = _cpu1_sstack_top
+    r1 = 2
+    [r0] = r1
+    csync
     reti = gb_core1_main
     rti

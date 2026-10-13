@@ -20,6 +20,7 @@ int main(void){
  j.error=0;submit(&j,0xffffffffu);assert(gb_video_work(&j,src,out+1)==1);
  submit(&j,1);assert(gb_video_work(&j,src,out+1)==1); /* sequence wrap skips idle zero */
  assert(gb_video_poll(&j,1,240000u,240000u,0)==1);
+ assert(gb_video_poll(&j,1,240001u,240000u,0)==1); /* completed while CPU0 was busy */
  assert(gb_video_poll(&j,2,0,240000u,0)==0);
  assert(gb_video_poll(&j,2,240001u,240000u,0)==-1);
  assert(gb_video_poll(&j,1,0,240000u,1)==-1);

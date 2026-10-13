@@ -6,7 +6,7 @@
 #define FELUCCA_CDC 0
 #define FELUCCA_UAC 0
 #define FELUCCA_OTA_DRYRUN 0
-#define FELUCCA_ID "FM-1_932"
+#define FELUCCA_ID "FM-1_934"
 #define RING_PUBLISH() __asm__ volatile("csync" ::: "memory")
 #define FL_RANGE_OK(off,n) FL_IN(off,n,0xe0000u,0xe5000u)
 #include "fm1_flash.h"
@@ -55,14 +55,17 @@ static void recovery_service(void){
        separate from all existing Felucca command IDs. Read-only. */
     const uint8_t *request;uint32_t request_size;
     if(ota_frame_get(&request,&request_size)&&request_size==4&&
-       request[0]==0x7d&&request[1]=='G'&&request[2]=='D'&&(request[3]==1||request[3]==2)){
+       request[0]==0x7d&&request[1]=='G'&&request[2]=='D'&&(request[3]>=1&&request[3]<=3)){
         uint8_t version=request[3];ota_frame_done();
         uint32_t values[]={fm1_ms,gp_frame_count(),gp_audio_queued(),audio_count,scan_count,
             (uint32_t)master_raw,master_gain,key_lo,gp_error(),FM1_ALNK_CON0,FM1_ALNK_CON2,
             display_count,audio_underruns,fm1_in.buttons,input_buttons,input_seen,
-            video_online,video_jobs,video_fallbacks,fm1_core1_fault.count,video_guard.barred};
-        uint8_t response[112]={0xf0,0x7d,'G','D',version};unsigned n=5;
-        for(unsigned i=0;i<(version==1?16:sizeof values/sizeof values[0]);i++)
+            video_online,video_jobs,video_fallbacks,fm1_core1_fault.count,video_guard.barred,
+            video_stage,video_core,video_launch_con,video_launch_pc,video_launch_emu,video_launch_dbg,
+            fm1_core1_fault.pc,fm1_core1_fault.emu,fm1_core1_fault.dbg,
+            video_launch_ready,video_retire_reason,video_retire_ticks,video_worker_jobs,video_work_max_ticks};
+        uint8_t response[192]={0xf0,0x7d,'G','D',version};unsigned n=5;
+        for(unsigned i=0;i<(version==1?16:version==2?21:sizeof values/sizeof values[0]);i++)
             for(unsigned j=0;j<5;j++)response[n++]=(uint8_t)((values[i]>>(j*7))&127);
         response[n++]=0xf7;ota_wire_send(response,n);
     }else ota_service();
