@@ -29,12 +29,14 @@ The FM-1 template is experimental version **FM-1_930**. A Tetris package generat
 
 Count white and black keys separately from the left. Assigned keys/pads light up.
 
+These mappings are in the simulator and current firmware source. The public FM-1_930 template still uses white 15 for B; the revised hardware mapping awaits recovery and validation of the development build.
+
 | Action | FM-1 | SMK37 |
 | --- | --- | --- |
 | Left / Down / Right | White 1 / 3 / 5 | White 4 / 6 / 8 |
-| Up | Black 2 or 3 | Black 3 or 4 |
-| A | White 16 | White 21 |
-| B | White 15 | White 22 |
+| Up | Black 2 or 3 | Black 4 or 5 |
+| A | White 16 | White 20 |
+| B | White 14 | White 22 |
 | Start / Select | PLAY / RECORD (also white 8 / 7) | PLAY / RECORD |
 | Pad directions | - | Bottom 1 / 2 / 3 = Left / Down / Right; top 2 = Up |
 | Pad B / A | - | Bottom 7 / 8 |
@@ -82,3 +84,11 @@ GPL-3.0-only integration with retained third-party notices. See [LICENSE](LICENS
 - Original GameDude pixel logo, startup animation and diagnostic cartridge are project assets. Game Boy and Nintendo are trademarks of Nintendo. This independent project is not affiliated with Nintendo.
 
 The browser simulator offers illustrated FM-1, SMK-37 Pro, SMK-37 Elite and classic Game Boy layouts. Lit device controls are playable. Enlarge screen moves the same running display above the hardware panel without resetting the game. Device artwork is retained under `vendor/illustrations` and generated with `python tools/make_device_art.py`.
+
+Restore original firmware: expand the restore section in the flasher, select the unmodified official M-VAVE FM-1 V15 `FM-1.fwsc`, connect the FM-1, and press Restore original FM-1 firmware. The complete file hash and layout are checked before transfer; the updater verifies the `FM-1_015` restart identity. No original manufacturer binary is distributed with this site. SMK restoration is not enabled.
+
+Dual-core development candidate: FM-1_932 and the SMK37 compile target assign immutable-frame scaling to CPU1, while CPU0 retains GB/APU emulation, audio interrupts, controls and USB. Private CPU1 stacks, ordered frame handoff, snapshot integrity checks, timeout/fault retirement and single-core fallback are included. The owner confirmed that the installed FM-1_931 trial plays and responds to controls, but its USB updater stopped responding. Recovery is pending; CPU1 activity has not been verified on hardware. FM-1_932 restores the board code's previous size optimization and includes the revised keys, but is not yet installed. The public flasher stays on the previously tested FM-1_930 template.
+
+The hero tour shows one instrument at a time, then zooms into its screen: FM-1 with Tetris, SMK-37 Pro with Super Mario Land, and SMK-37 Elite with Tennis. Pause or choose a device using the tour controls. Reduced-motion preferences start the tour paused. Gameplay screenshots were captured from local cartridges; no commercial ROM is distributed.
+
+Restore validation: `node tests/restore.mjs <official-FM-1-V15.fwsc>` exercises package rejection and install/resume routing without opening MIDI. The retained loader simulator also passed GameDude-to-original-V15 restoration with preservation of the boot region and writes restricted to the expected ranges. This does not substitute for a physical original-firmware restore test.

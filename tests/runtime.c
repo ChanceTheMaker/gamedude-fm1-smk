@@ -26,11 +26,12 @@ int main(int argc,char**argv){
     rom[0x147]=6;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);assert(gp_save_size()==512);
     rom[0x147]=3;rom[0x149]=4;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);assert(gp_save_size()==131072);
     rom[0x147]=0;rom[0x149]=0;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);
-    /* FM-1 F3..G5: white 1/3/5 and the two rightmost white keys. */
+    /* FM-1 F3..G5: white 1/3/5 and white 14 B and white 16 A. */
     assert(gp_input_keys(1u<<0,0)==GP_LEFT);
     assert(gp_input_keys(1u<<4,0)==GP_DOWN);
     assert(gp_input_keys(1u<<7,0)==GP_RIGHT);
-    assert(gp_input_keys((1u<<24)|(1u<<26),0)==(GP_B|GP_A));
+    assert(gp_input_keys((1u<<23)|(1u<<26),0)==(GP_B|GP_A));
+    assert(gp_input_keys(1u<<24,0)==0);
     assert(gp_input_keys(1u<<3,0)==GP_UP);
     assert(gp_input_keys(1u<<5,0)==GP_UP);
     assert(gp_input_keys((1u<<3)|(1u<<5),0)==GP_UP);

@@ -25,3 +25,15 @@ _start:
 .endm
 GB_ISR gb_isr_audio, gb_audio_irq
 GB_ISR gb_isr_scan, gb_scan_irq
+
+/* Private IRQ-disabled second-core worker, matching the AC79 reset ABI. */
+.section .text.core1,"ax",@progbits
+.globl gb_core1_start
+gb_core1_start:
+    cli
+    icfg = 0
+    usp = _cpu1_ustack_top
+    sp = _cpu1_sstack_top
+    ssp = _cpu1_sstack_top
+    reti = gb_core1_main
+    rti

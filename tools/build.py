@@ -45,6 +45,8 @@ def main():
         run([ROOT/'build/runtime-test.exe',ROOT/'build/diagnostic.gb'])
         run([a.zig,'cc','-std=c99','-O2','-UNDEBUG','-Isrc','tests/smk37_game_controls.c','-o','build/smk37-controls-test.exe'])
         run([ROOT/'build/smk37-controls-test.exe'])
+        run([a.zig,'cc','-std=c99','-O2','-UNDEBUG','-Isrc','tests/video_worker.c','-o','build/video-worker-test.exe'])
+        run([ROOT/'build/video-worker-test.exe'])
         return
     else:
         native(a,sources)
@@ -64,8 +66,8 @@ def native(a,sources):
     rel=out.relative_to(ROOT).as_posix()
     def tc(tool,*args):
         run(['wsl','-e',f'{a.toolchain}/{tool}',*args])
-    flags=['-target','pi32v2','-std=c99','-Os','-fno-builtin','-ffunction-sections','-fdata-sections','-DGB_HARDWARE=1',
-        '-DMUSICCOACH_DUAL_CORE=0','-DMINIGB_APU_AUDIO_FORMAT_S16SYS','-DAUDIO_SAMPLE_RATE=44100',
+    flags=['-target','pi32v2','-std=c99','-Os','-fno-builtin','-ffunction-sections','-fdata-sections','-DGB_HARDWARE=1','-DMUSICCOACH_DUAL_CORE=1',
+        '-DMINIGB_APU_AUDIO_FORMAT_S16SYS','-DAUDIO_SAMPLE_RATE=44100',
         '-Isrc','-Isrc/freestanding','-Ivendor/peanut-gb','-Ivendor/felucca/firmware/hal','-I'+rel,
         '-DGB_SMK37='+str(int(a.target=='smk37')),'-Wall','-Wno-unused-function']
     inputs=[*sources,'src/libc.c','firmware/board.c','firmware/start.S','vendor/felucca/firmware/hal/fm1_vec.S']
@@ -92,11 +94,14 @@ def native(a,sources):
     image.extend(b'\xff'*(-len(image)%4))
     assert sym('_start')==0x2000120 and image[:4]==bytes.fromhex('04818000')
     assert len(image)<=0x8dfbc and sym('_bss_end')<=0x1c1a000 and sym('_pool_end')<=0x1c74000
+    assert sym('_cpu1_stacks_hi')<=0x1c74000 and sym('_cpu1_stacks_hi')-sym('_cpu1_stacks_lo')==8192
+    assert 0x1c00000<=sym('gb_core1_main')<sym('_dsp_end')<=0x1c06000
     if a.target=='smk37':
         assert not re.search(r'\b(fm1_input_init|fm1_adc_init|fm1_audio_init|fm1_lcd_hw_init)$',symbols,re.M)
     binary=out/f'gb-{a.target}-NOT-FOR-INSTALL.bin';binary.write_bytes(image)
     result={'board':a.target,'installable':False,'hardware_validated':False,'bytes':len(image),
-      'ram_bytes':sym('_bss_end')-0x1c08000,'pool_bytes':sym('_pool_end')-0x1c1a000,
+      'ram_bytes':sym('_bss_end')-0x1c08000,'pool_bytes':sym('_pool_end')-0x1c1a000,'cpu1_stack_bytes':sym('_cpu1_stacks_hi')-sym('_cpu1_stacks_lo'),
+      'dual_core':'CPU0 GB/APU/audio/input/USB; CPU1 display scaling; timeout/fault fallback',
       'sha256':hashlib.sha256(image).hexdigest(),'rom_bytes':len(rom),'rom_sha256':hashlib.sha256(rom).hexdigest(),
       'cartridge_offset':sym('cartridge')-0x2000120,'cartridge_capacity':capacity,
       'cartridge':'original diagnostic' if a.rom is None else 'private user cartridge',

@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only
  * FM-1 and SMK37 adapters using MusicCoach/Felucca HAL. Compile-only candidate.
- * Audio IRQ only drains PCM; CPU/APU/video emulation stays in the main loop. */
+ * Audio IRQ drains PCM; CPU0 emulates GB/APU; CPU1 scales immutable display frames. */
 #include <stdint.h>
 #include "gb_port.h"
 #include "fm1_time.h"
@@ -26,6 +26,7 @@ static void read_samples(void){
     }
     ding_position=p;
 }
+#include "multicore_video.h"
 volatile smk37_bootguard_t gb_bootguard __attribute__((section(".noinit")));
 
 #if GB_SMK37
@@ -187,7 +188,7 @@ static void boot_splash(int display_ok){
     }
     while(display_ok&&!display_ready())fm1_wdt_feed();
 }
-static void fm1_fault(const fm1_crash_t *c){(void)c;audio_stop();fm1_reboot();}
+static void fm1_fault(const fm1_crash_t *c){(void)c;video_retire();audio_stop();fm1_reboot();}
 extern uint32_t _data_start[],_data_end[],_data_load[],_bss_start[],_bss_end[];
 extern uint32_t _pool_start[],_pool_end[],_rt_start[],_rt_end[],_rt_load[];
 extern uint32_t _dsp_start[],_dsp_end[],_dsp_load[];
@@ -233,6 +234,7 @@ void gb_cstart(const uint32_t *parameters){
 #if !GB_SMK37
     recovery_init();
 #endif
+    video_start(cold);
     uint32_t drawn=0,last=fm1_ticks(),elapsed=0,seconds=0;
     for(;;){
         uint32_t now=fm1_ticks();elapsed+=now-last;last=now;
@@ -253,13 +255,10 @@ void gb_cstart(const uint32_t *parameters){
 #endif
             gp_frame();
         }
-        if(display_ok && gp_frame_count()-drawn>=6 && display_ready()){
-            uint16_t *p=gp_pixels();
-            for(unsigned y=0;y<216;y++)for(unsigned x=0;x<240;x++){
-                uint16_t pixel=p[(y*2/3)*160+x*2/3];
-                screen[y*240+x]=(uint16_t)((pixel>>8)|(pixel<<8));
-            }
-            display_frame();display_count++;drawn=gp_frame_count();
+        if(display_ok && video_complete()){display_frame();display_count++;}
+        if(display_ok && !video_pending && gp_frame_count()-drawn>=6 && display_ready()){
+            video_submit(gp_pixels());drawn=gp_frame_count();
+            if(!video_online){display_frame();display_count++;}
         }
         if(seconds>=30 && scan_count>100 && audio_count>100 && gp_frame_count()>100)
             smk37_bootguard_healthy(&gb_bootguard);

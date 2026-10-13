@@ -165,10 +165,10 @@ uint32_t gp_input_keys(uint32_t lo,uint32_t hi) {
 #else
     (void)hi;
     /* FM-1 starts at F3. White keys: left 1, down 3, right 5,
-       Select 7, Start 8, rightmost whites 15/16 B/A. Black keys 2/3
+       Select 7, Start 8, whites 14/16 B/A. Black keys 2/3
        both mean Up; count black and white keys separately from the left.
        These are zero-based chromatic scan indices, not white-key numbers. */
-    static const uint8_t keys[8]={26,24,11,12,7,0,3,4};
+    static const uint8_t keys[8]={26,23,11,12,7,0,3,4};
     uint32_t p=0;
     for(unsigned i=0;i<8;i++) if(lo&(1u<<keys[i]))p|=1u<<i;
     if(lo&(1u<<5))p|=GP_UP; /* Third black key, A#3; second is G#3. */

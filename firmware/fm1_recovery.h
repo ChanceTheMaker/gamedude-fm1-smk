@@ -6,7 +6,7 @@
 #define FELUCCA_CDC 0
 #define FELUCCA_UAC 0
 #define FELUCCA_OTA_DRYRUN 0
-#define FELUCCA_ID "FM-1_930"
+#define FELUCCA_ID "FM-1_932"
 #define RING_PUBLISH() __asm__ volatile("csync" ::: "memory")
 #define FL_RANGE_OK(off,n) FL_IN(off,n,0xe0000u,0xe5000u)
 #include "fm1_flash.h"
@@ -35,7 +35,7 @@ static void ota_show(uint32_t step,int32_t code){
     if(step<6)lcd_fill(20,100,step*40,24,0x07e0);
 }
 static void ota_commit(const uint8_t *parm){
-    gb_bootguard.pending=0;usb_detach();fm1_delay_ms(30);fm1_enter_update(parm);
+    video_stop();gb_bootguard.pending=0;usb_detach();fm1_delay_ms(30);fm1_enter_update(parm);
 }
 static void recovery_tick(void){
     static uint32_t last,acc,sub;
@@ -55,21 +55,22 @@ static void recovery_service(void){
        separate from all existing Felucca command IDs. Read-only. */
     const uint8_t *request;uint32_t request_size;
     if(ota_frame_get(&request,&request_size)&&request_size==4&&
-       request[0]==0x7d&&request[1]=='G'&&request[2]=='D'&&request[3]==1){
-        ota_frame_done();
+       request[0]==0x7d&&request[1]=='G'&&request[2]=='D'&&(request[3]==1||request[3]==2)){
+        uint8_t version=request[3];ota_frame_done();
         uint32_t values[]={fm1_ms,gp_frame_count(),gp_audio_queued(),audio_count,scan_count,
             (uint32_t)master_raw,master_gain,key_lo,gp_error(),FM1_ALNK_CON0,FM1_ALNK_CON2,
-            display_count,audio_underruns,fm1_in.buttons,input_buttons,input_seen};
-        uint8_t response[96]={0xf0,0x7d,'G','D',1};unsigned n=5;
-        for(unsigned i=0;i<sizeof values/sizeof values[0];i++)
+            display_count,audio_underruns,fm1_in.buttons,input_buttons,input_seen,
+            video_online,video_jobs,video_fallbacks,fm1_core1_fault.count,video_guard.barred};
+        uint8_t response[112]={0xf0,0x7d,'G','D',version};unsigned n=5;
+        for(unsigned i=0;i<(version==1?16:sizeof values/sizeof values[0]);i++)
             for(unsigned j=0;j<5;j++)response[n++]=(uint8_t)((values[i]>>(j*7))&127);
         response[n++]=0xf7;ota_wire_send(response,n);
     }else ota_service();
     /* GameDude does not consume musical MIDI events. Keep that ring drained. */
     uint32_t f=irq_save();mi_r=mi_w;midi_in_overflow=0;irq_restore(f);
-    if(usb.uboot_req){audio_stop();gb_bootguard.pending=0;usb_detach();fm1_delay_ms(30);fm1_enter_uboot();}
+    if(usb.uboot_req){video_stop();audio_stop();gb_bootguard.pending=0;usb_detach();fm1_delay_ms(30);fm1_enter_uboot();}
     if(usb.ota_req){
         usb.ota_req=0;
-        if(recovery_flash_ok){audio_stop();ota_session();audio_start();}
+        if(recovery_flash_ok){video_stop();audio_stop();ota_session();audio_start();}
     }
 }

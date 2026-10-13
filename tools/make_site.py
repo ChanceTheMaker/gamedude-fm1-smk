@@ -6,7 +6,7 @@ from diagnostic import make_rom
 ROOT=Path(__file__).resolve().parents[1]
 WEB=ROOT/'web'
 OUT=ROOT/'build/site'
-files=['artwork/fm1.svg','artwork/smk-pro.svg','artwork/smk-elite.svg','artwork/gamedude-devices.svg','artwork/NOTICE.txt','index.html','studio.css','gamedude.js','gamedude-audio.js',
+files=['hero.js','artwork/game-tetris.png','artwork/game-mario.png','artwork/game-tennis.png','artwork/fm1.svg','artwork/smk-pro.svg','artwork/smk-elite.svg','artwork/gamedude-devices.svg','artwork/NOTICE.txt','index.html','studio.css','gamedude.js','gamedude-audio.js',
        'gamedude-logo.svg','branding.js','simulator.js','flash-ui.js',
        'rom-firmware.js','restore-firmware.js','zip.js','credits.html','gb.wasm','diagnostic.gb','build.json',
        'vendor/fm1pkg.js','vendor/fm1ota.js','firmware/fm1-template.fwsc',
