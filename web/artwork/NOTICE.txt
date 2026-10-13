@@ -1,1 +1,3 @@
 Device vector illustrations retained from the Sloop/Felucca websites, GPL-3.0-only. Felucca: Leo Kuroshita / Huegelton Instruments; SMK and Sloop adaptations: Chance Roth / ChanceTheMaker. GameDude modifies display artwork and presentation. See the project LICENSE and provenance.json.
+
+Block Drop, Super Pixel and Pocket Tennis are original AI-generated mock game screen illustrations created for GameDude using the built-in image generation tool. They do not depict bundled playable games. No commercial game screenshots are used in the current hero tour.

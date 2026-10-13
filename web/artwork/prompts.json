@@ -1,0 +1,23 @@
+﻿{
+  "tool": "Built-in image_gen",
+  "created": "2026-10-13",
+  "scenes": [
+    {
+      "file": "game-stack.png",
+      "prompt": "Use case: stylized-concept. Asset type: original mock gameplay screen for GameDude website device display. Generate a full-bleed flat 10:9 landscape pixel-art screen, ideally 1600x1440, no device or frame. Looks instantly like a 1990 original Game Boy game: exactly four olive-green LCD shades, large crisp square pixel grid, no gradients, no smoothing. An original falling-gem puzzle: tall well at LEFT, piled small outlined diamond gems and triangular clusters occupying its lower third, a falling cluster above, dark narrow status column at RIGHT with tiny pixel text STACK, 02400, NEXT and a diamond-cluster preview. Nostalgic block puzzle gameplay at first glance but invent its layout and gem pieces, not a copied Tetris screenshot. Clean readable chunky pixels that remain legible on a tiny screen. No Nintendo logo, no Tetris name, no copied commercial game art. Fill the entire image."
+    },
+    {
+      "file": "game-trail.png",
+      "prompt": "Use case: stylized-concept. Asset type: original mock gameplay screen for GameDude website device display. Generate a full-bleed flat 10:9 landscape pixel-art screen, ideally 1600x1440, no device or frame. Looks instantly like a 1990 original Game Boy side scrolling platform adventure: exactly four olive-green LCD shades, large crisp square pixel grid, no gradients, no smoothing. An original small round helmeted robot jumping toward three floating crystal shards; staggered mossy stone platforms above water, simple distant mountain silhouettes and two geometric clouds, tiny beetle on a ledge. Simple small HUD with text TRAIL 01 and three heart pixels along top. Nostalgic platform gameplay at first glance, own character, own world and layout; no Mario character, no pipes, no question blocks, no Nintendo logos or copied sprites. Clean readable chunky pixels that remain legible on a tiny screen. Fill the entire image."
+    },
+    {
+      "file": "game-court.png",
+      "prompt": "Use case: stylized-concept. Asset type: original mock gameplay screen for GameDude website device display. Generate a full-bleed flat 10:9 landscape pixel-art screen, ideally 1600x1440, no device or frame. Looks instantly like a 1990 original Game Boy tennis game: exactly four olive-green LCD shades, large crisp square pixel grid, no gradients, no smoothing. Original overhead-perspective tennis match on a court with a clear net at middle, a little racket player at lower left and opponent at upper right, bright ball midcourt, dotted motion trail; simple hedge borders, narrow scoring strip across top with pixel text COURT and 15 : 30. Invent sprites and composition, do not copy a Nintendo Tennis screenshot or include brand logos. Clean readable chunky pixels that remain legible on a tiny screen. Fill entire image."
+    }
+  ],
+  "captions": [
+    "Block Drop",
+    "Super Pixel",
+    "Pocket Tennis"
+  ]
+}
