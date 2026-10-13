@@ -1,5 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 #include "gb_port.h"
+#include "fm1_game_lights.h"
 #include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -43,6 +44,20 @@ int main(int argc,char**argv){
     assert(gp_input_keys((1u<<6)|(1u<<4),0)==(GP_RIGHT|GP_DOWN));
     assert(gp_input_keys((1u<<1)|(1u<<8)|(1u<<10)|
         (1u<<13)|(1u<<15)|(1u<<17)|(1u<<20)|(1u<<22)|(1u<<25),0)==0);
+    const uint32_t left=(1u<<0)|(1u<<2),right=(1u<<6)|(1u<<7),up=(1u<<3)|(1u<<5);
+    const uint32_t all=left|right|up|(1u<<4)|(1u<<11)|(1u<<12)|(1u<<23)|(1u<<26);
+    assert(gp_fm1_key_lights(0)==all);
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<0,0))==(all&~left));
+    assert(gp_fm1_key_lights(gp_input_keys(left,0))==(all&~left));
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<2,0))==(all&~left)); /* Outer released, inner held. */
+    assert(gp_fm1_key_lights(gp_input_keys(0,0))==all); /* Last duplicate released. */
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<6,0))==(all&~right));
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<7,0))==(all&~right));
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<3,0))==(all&~up));
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<5,0))==(all&~up));
+    assert(gp_fm1_key_lights(GP_LEFT|GP_RIGHT)==(all&~(left|right)));
+    assert(gp_fm1_key_lights(GP_A)==(all&~(1u<<26)));
+    assert(gp_fm1_key_lights(gp_input_keys(1u<<1,0))==all); /* Unmapped key stays dark. */
     int16_t out[740*2];unsigned long total=0;unsigned loud=0;
     for(unsigned n=0;n<1000;n++){
         gp_buttons(n<500?0:GP_A|GP_RIGHT);

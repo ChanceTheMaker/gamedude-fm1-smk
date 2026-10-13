@@ -156,10 +156,17 @@ static int display_ready(void){
     lcd_sync();return 1;
 }
 static void display_frame(void){lcd_blit(0,12,240,216,screen);}
+#include "fm1_game_lights.h"
+static void piano_lights(uint32_t held_actions){
+    static uint32_t previous=UINT32_MAX;
+    if(held_actions==previous)return;
+    previous=held_actions;
+    uint32_t lights=gp_fm1_key_lights(held_actions);
+    for(unsigned k=0;k<27;k++)fm1_led_key(14+k,(lights&(1u<<k))!=0);
+}
 static void input_init(void){
     fm1_input_init();
-    /* Use the actual game mapping so the lights follow future remaps. */
-    for(unsigned k=0;k<27;k++)fm1_led_key(14+k,gp_input_keys(1u<<k,0)!=0);
+    piano_lights(0);
     fm1_led_key(12,1); /* PLAY / Start */
     fm1_led_key(13,1); /* REC / Select */
     fm1_timer5_start(gb_isr_scan,4);
@@ -242,6 +249,7 @@ void gb_cstart(const uint32_t *parameters){
         fm1_wdt_feed();
 #if !GB_SMK37
         input_buttons=gp_input_keys(key_lo,key_hi);
+        piano_lights(input_buttons);
         /* Measured FM-1 panel IDs: PLAY=12, REC=13. */
         if(fm1_in.buttons&(1u<<12))input_buttons|=GP_START;
         if(fm1_in.buttons&(1u<<13))input_buttons|=GP_SELECT;

@@ -33,3 +33,8 @@ CPU1 is therefore performing graphics work on hardware while USB remains respons
 ## Public template 935
 
 The website template was subsequently rebuilt as FM-1_935 to include the additional inner keys: FM-1 white 2 Left and white 4 Right, plus SMK source mappings white 5 Left and white 7 Right. The CPU1 implementation is unchanged from the physically tested 934 trial. Public 935 contains only the original diagnostic ROM and passes the package, USB-preservation, simulated install/restore and input checks. The additional keys still need physical confirmation; publishing this template is not a claim that 935 itself has been hardware-tested. SMK flashing remains disabled.
+
+
+## Public template 936
+
+Version 936 adds physical FM-1 piano-key feedback: all LEDs mapped to a held action turn off together and return after the last matching key is released. The LED update runs on CPU0 only when piano action state changes. CPU1, the USB updater and the browser simulator press effect are unchanged. Host checks cover idle lights, duplicate presses, partial and final release, simultaneous actions and unassigned keys. The exact physical LED behavior still needs owner confirmation.
