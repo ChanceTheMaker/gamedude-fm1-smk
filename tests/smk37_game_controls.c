@@ -6,6 +6,12 @@ int main(void){
     assert(gp_smk37_keys(1u<<5,0)==GP_LEFT);
     assert(gp_smk37_keys(1u<<9,0)==GP_DOWN);
     assert(gp_smk37_keys(1u<<12,0)==GP_RIGHT);
+    assert(gp_smk37_keys(1u<<7,0)==GP_LEFT);
+    assert(gp_smk37_keys(1u<<11,0)==GP_RIGHT);
+    assert(gp_smk37_keys((1u<<5)|(1u<<7),0)==GP_LEFT);
+    assert(gp_smk37_keys((1u<<11)|(1u<<12),0)==GP_RIGHT);
+    assert(gp_smk37_keys((1u<<7)|(1u<<9),0)==(GP_LEFT|GP_DOWN));
+    assert(gp_smk37_keys((1u<<11)|(1u<<9),0)==(GP_RIGHT|GP_DOWN));
     assert(gp_smk37_keys(1u<<8,0)==GP_UP&&gp_smk37_keys(1u<<10,0)==GP_UP);
     assert(gp_smk37_keys(0,1u<<1)==GP_A&&gp_smk37_keys(0,1u<<4)==GP_B);
     assert(gp_smk37_keys(1u<<6,1u<<3)==0);

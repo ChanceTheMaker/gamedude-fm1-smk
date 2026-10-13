@@ -5,9 +5,9 @@
    White/black numbers count each color separately from the left. */
 static inline uint32_t gp_smk37_keys(uint32_t lo,uint32_t hi){
     uint32_t p=0;
-    if(lo&(1u<<5))p|=GP_LEFT;   /* white 4 */
+    if(lo&((1u<<5)|(1u<<7)))p|=GP_LEFT;   /* whites 4/5 */
     if(lo&(1u<<9))p|=GP_DOWN;   /* white 6 */
-    if(lo&(1u<<12))p|=GP_RIGHT; /* white 8 */
+    if(lo&((1u<<11)|(1u<<12)))p|=GP_RIGHT; /* whites 7/8 */
     if(lo&((1u<<8)|(1u<<10)))p|=GP_UP; /* black 4/5 */
     if(hi&(1u<<1))p|=GP_A;     /* white 20, chromatic key 33 */
     if(hi&(1u<<4))p|=GP_B;     /* white 22, chromatic key 36 */

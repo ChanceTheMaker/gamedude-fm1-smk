@@ -35,11 +35,13 @@ The FM-1 template is experimental version **FM-1_930**. A Tetris package generat
 
 Count white and black keys separately from the left. Assigned keys/pads light up.
 
-These mappings are in the simulator and current firmware source. The public FM-1_930 template still uses white 15 for B; the revised hardware mapping was included in the recovered development build FM-1_932 and awaits physical key confirmation.
+These mappings are in the simulator and current firmware source. The additional inner Left/Right keys are prepared for the next hardware build; installed trial FM-1_934 and public template FM-1_930 do not include them. Trial 934 uses white 14 for B; the public 930 template still uses white 15.
 
 | Action | FM-1 | SMK37 |
 | --- | --- | --- |
-| Left / Down / Right | White 1 / 3 / 5 | White 4 / 6 / 8 |
+| Left | White 1 or 2 | White 4 or 5 |
+| Down | White 3 | White 6 |
+| Right | White 4 or 5 | White 7 or 8 |
 | Up | Black 2 or 3 | Black 4 or 5 |
 | A | White 16 | White 20 |
 | B | White 14 | White 22 |

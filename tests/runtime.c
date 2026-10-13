@@ -26,7 +26,7 @@ int main(int argc,char**argv){
     rom[0x147]=6;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);assert(gp_save_size()==512);
     rom[0x147]=3;rom[0x149]=4;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);assert(gp_save_size()==131072);
     rom[0x147]=0;rom[0x149]=0;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);
-    /* FM-1 F3..G5: white 1/3/5 and white 14 B and white 16 A. */
+    /* FM-1 F3..G5: white 1/2 left, 3 down, 4/5 right and white 14 B and white 16 A. */
     assert(gp_input_keys(1u<<0,0)==GP_LEFT);
     assert(gp_input_keys(1u<<4,0)==GP_DOWN);
     assert(gp_input_keys(1u<<7,0)==GP_RIGHT);
@@ -35,7 +35,12 @@ int main(int argc,char**argv){
     assert(gp_input_keys(1u<<3,0)==GP_UP);
     assert(gp_input_keys(1u<<5,0)==GP_UP);
     assert(gp_input_keys((1u<<3)|(1u<<5),0)==GP_UP);
-    assert(gp_input_keys((1u<<2)|(1u<<6),0)==0); /* Whites 2/4 are free. */
+    assert(gp_input_keys(1u<<2,0)==GP_LEFT);
+    assert(gp_input_keys(1u<<6,0)==GP_RIGHT);
+    assert(gp_input_keys((1u<<0)|(1u<<2),0)==GP_LEFT); /* Either left key can remain held. */
+    assert(gp_input_keys((1u<<6)|(1u<<7),0)==GP_RIGHT);
+    assert(gp_input_keys((1u<<2)|(1u<<4),0)==(GP_LEFT|GP_DOWN));
+    assert(gp_input_keys((1u<<6)|(1u<<4),0)==(GP_RIGHT|GP_DOWN));
     assert(gp_input_keys((1u<<1)|(1u<<8)|(1u<<10)|
         (1u<<13)|(1u<<15)|(1u<<17)|(1u<<20)|(1u<<22)|(1u<<25),0)==0);
     int16_t out[740*2];unsigned long total=0;unsigned loud=0;
