@@ -10,7 +10,7 @@ Drop in a `.gb` file or a ZIP containing one `.gb`. ROM processing and firmware 
 
 Choose **FM-1**, **SMK37**, or **Game Boy** in the Simulator selector. The Game Boy option adds a classic gray handheld shell, green display and magenta A/B buttons. FM-1 and SMK37 offer clickable instrument keys and pads. Switching layouts keeps the current game running.
 
-The colorful GameDude logo drops into place and plays a quiet landing ding when sound is enabled. Volume starts at 25%. WASD or arrow keys move. Space is A (fire), Enter is B (jump), P is Start, and Shift is Select. Z/X remain alternate B/A keys; actions depend on the game. On-screen controls also work. Cartridge RAM saves automatically in this browser, with `.sav` import/export for games with RAM.
+The colorful GameDude logo drops into place and plays a quiet landing ding when sound is enabled. Volume starts at 25%. WASD or arrow keys move. Space is B, Enter is A, P is Start, and Shift is Select. Z/X remain alternate B/A keys; actions depend on the game. On-screen controls also work. Cartridge RAM saves automatically in this browser, with `.sav` import/export for games with RAM.
 
 ## Flash FM-1
 
