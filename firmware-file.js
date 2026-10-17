@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 import {Package,sha256hex} from './vendor/fm1pkg.js?v=20261013';
 import {SMKPackage,smkLogicalImage} from './vendor/smk37-package.js';
-import {prepareInstall} from './install-firmware.js?v=fm1ports1';
+import {prepareInstall} from './install-firmware.js?v=fm1current2';
 import {makeSmkPacket} from './smk-format.js';
 import {sealSmkInstall} from './smk-install.js';
 import {SMK_MODELS} from './smk-firmware.js?v=963';

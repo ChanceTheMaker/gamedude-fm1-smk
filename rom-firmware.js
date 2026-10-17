@@ -1,5 +1,5 @@
 import {Package,sha256hex,logicalImage} from './vendor/fm1pkg.js?v=20261013';
-import {prepareInstall} from './install-firmware.js?v=fm1ports1';
+import {prepareInstall} from './install-firmware.js?v=fm1current2';
 export async function protectedAppHash(app,offset,capacity){
  const code=new Uint8Array(app.length-capacity);code.set(app.subarray(0,offset));code.set(app.subarray(offset+capacity),offset);return sha256hex(code);
 }

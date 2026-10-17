@@ -1,5 +1,5 @@
 ﻿import {validateStockPackage} from './vendor/fm1pkg.js?v=20261013';
-import {prepareInstall,installFirmware} from './install-firmware.js?v=fm1ports1';
+import {prepareInstall,installFirmware} from './install-firmware.js?v=fm1current2';
 export async function downloadOriginal(fetcher=fetch){
  const response=await fetcher('firmware/fm1-original.fwsc',{cache:'no-store',signal:AbortSignal.timeout(20000)});
  if(!response.ok)throw Error('The official firmware download failed. Please try again.');
