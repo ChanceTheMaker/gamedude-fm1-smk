@@ -131,3 +131,5 @@ The Choose panel offers Tobu Tobu Girl, GB-Wordyl (English), 2048, Libbet and th
 The public staging tool only copies manifest-listed homebrew files after verifying their ROM/source hashes, licenses and DMG compatibility. The device library accepts games up to 256 KiB; the older single-cartridge packaging fixtures cover up to 512 KiB. Private local libraries remain excluded.
 
 The top navigation includes an Install link to the firmware panel. The footer links to SMKLAB, Doom, Felucca SMK, Sloop SMK and Melodee SMK, matching the project family navigation.
+
+The website, simulator and build 939 firmware share a solid italic GameDude wordmark. The small-screen artwork is generated from the same glyphs as the SVG logos; game storage capacity is unchanged.

@@ -1,22 +1,15 @@
-/* SPDX-License-Identifier: GPL-3.0-only. Original GameDude pixel wordmark. */
+/* SPDX-License-Identifier: GPL-3.0-only. GameDude solid italic wordmark. */
 #pragma once
 #include <stdint.h>
-static const uint8_t gd_letters[8][7]={
- {14,17,16,23,17,17,14},{14,17,17,31,17,17,17},
- {17,27,21,21,17,17,17},{31,16,16,30,16,16,31},
- {30,17,17,17,17,17,30},{17,17,17,17,17,17,14},
- {30,17,17,17,17,17,30},{31,16,16,30,16,16,31}
-};
-static const uint16_t gd_colors[8]={0x2f3f,0x65fe,0xbfb3,0xff0b,0xfbd1,0xeabc,0xb47f,0x6e7f};
+#include "wordmark.h"
+static const uint16_t gd_colors[]={0xef5e,0xef5e,0xef5e,0xef5e,0xef5e,0xef5e,0xef5e,0xef5e};
 static inline uint16_t gd_wire(uint16_t c){return (uint16_t)((c>>8)|(c<<8));}
 static inline void gd_logo_draw(uint16_t *screen,int y){
     for(unsigned i=0;i<240*216;i++)screen[i]=gd_wire(0x0843);
-    for(unsigned letter=0;letter<8;letter++)for(unsigned row=0;row<7;row++)
-        for(unsigned col=0;col<5;col++)if(gd_letters[letter][row]&(16u>>col))
-            for(unsigned dy=0;dy<4;dy++)for(unsigned dx=0;dx<4;dx++){
-                int py=y+(int)row*4+(int)dy;unsigned x=26+letter*24+col*4+dx;
-                if(py>=0&&py<216)screen[(unsigned)py*240+x]=gd_wire(gd_colors[letter]);
-            }
+    for(unsigned row=0;row<GD_MARK_HEIGHT;row++)for(unsigned col=0;col<GD_MARK_WIDTH;col++){
+        int py=y+(int)row;unsigned ink=gd_mark_index(col,row);
+        if(ink&&py>=0&&py<216)screen[(unsigned)py*240+(240-GD_MARK_WIDTH)/2+col]=gd_wire(gd_mark_palette[ink]);
+    }
 }
 #define GD_SPLASH_LAND_MS 500u
 #define GD_SPLASH_END_MS 1500u

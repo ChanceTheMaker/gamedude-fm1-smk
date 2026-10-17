@@ -1,9 +1,9 @@
-const logo=new Image();logo.src=new URL('gamedude-logo.svg',import.meta.url).href;
+const logo=new Image();logo.src=new URL('gamedude-logo.svg?v=solid1',import.meta.url).href;
 const ready=logo.decode().catch(()=>{});
 const colors=['#29e6ff','#65eebb','#b8ef92','#ffe45a','#ff7890','#d975e8','#ad8bff','#6aceff'];
 export const SPLASH_LAND_MS=500,SPLASH_END_MS=1500;
 function background(ctx){ctx.fillStyle='#080b19';ctx.fillRect(0,0,160,144);}
-function paint(ctx,y){background(ctx);if(logo.complete&&logo.naturalWidth)ctx.drawImage(logo,7,Math.round(y),146,28);}
+function paint(ctx,y){background(ctx);if(logo.complete&&logo.naturalWidth)ctx.drawImage(logo,7,Math.round(y),146,Math.round(146*logo.naturalHeight/logo.naturalWidth));}
 export async function idleLogo(ctx){await ready;paint(ctx,55);ctx.fillStyle='#6c819e';ctx.font='6px monospace';ctx.textAlign='center';ctx.fillText('INSERT A CARTRIDGE',80,100);}
 export function splashY(ms){
  if(ms<SPLASH_LAND_MS)return -32+87*(ms/SPLASH_LAND_MS)**2;

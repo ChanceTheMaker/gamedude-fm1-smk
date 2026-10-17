@@ -6,14 +6,14 @@ def main():
     out=ROOT/'web/firmware';models={}
     for folder,tag,model,board,limit in [('library-fm1-public','FM1','fm1','fm1',204512),('library-smk-public','SMK','smk-pro','smk37',216800)]:
         build=ROOT/'build'/folder;report=json.loads((build/'report.json').read_text())
-        data=(build/f'{tag}938-BLUETOOTH-RAW.bin').read_bytes()
+        data=(build/f'{tag}939-BLUETOOTH-RAW.bin').read_bytes()
         assert report['private_device_calibration'] is False, 'Private calibration must never be staged for the website'
         assert report['board']==board and report['ram_reach_check'] and report['usb_updater']
-        assert report['product']==('FM-1_938' if model=='fm1' else 'SMK-37_938')
+        assert report['product']==('FM-1_939' if model=='fm1' else 'SMK-37_939')
         assert len(data)==report['app_bytes']<=limit and hashlib.sha256(data).hexdigest()==report['sha256']
-        file=f'gamedude-{board}-938.bin';(out/file).write_bytes(data)
+        file=f'gamedude-{board}-939.bin';(out/file).write_bytes(data)
         models[model]={'product':report['product'],'file':'firmware/'+file,'bytes':len(data),'sha256':report['sha256']}
     models['smk-elite']=dict(models['smk-pro'])
-    (out/'gamedude.json').write_text(json.dumps({'version':938,'models':models},indent=2)+'\n')
+    (out/'gamedude.json').write_text(json.dumps({'version':939,'models':models},indent=2)+'\n')
     print('Staged verified, calibration-free FM-1 and SMK library cores; no games included.')
 if __name__=='__main__':main()

@@ -21,13 +21,13 @@ if(action==='restore'){
  let release=manifest.models['smk-pro'],appFile=path.join(root,'web',release.file);
  if(owner==='owner'){
   const report=JSON.parse(await fs.readFile(path.join(root,'build/library-smk-owner/report.json'),'utf8'));
-  if(!report.private_device_calibration||report.product!=='SMK-37_938')throw Error('Invalid owner core');
+  if(!report.private_device_calibration||report.product!=='SMK-37_939')throw Error('Invalid owner core');
   release={product:report.product,bytes:report.app_bytes,sha256:report.sha256};
-  appFile=path.join(root,'build/library-smk-owner/SMK938-BLUETOOTH-RAW.bin');
+  appFile=path.join(root,'build/library-smk-owner/SMK939-BLUETOOTH-RAW.bin');
  }
  const app=new Uint8Array(await fs.readFile(appFile));
- if(manifest.version!==938||release.product!=='SMK-37_938'||app.length!==release.bytes||app.length>216800||await sha256hex(app)!==release.sha256)throw Error('Core verification failed');
- const built=await buildSmkPublicPackage(stock,app,{...release,public:true,board:'SMK-37 Pro',version:'GAMEDUDE SMK 938'});
+ if(manifest.version!==939||release.product!=='SMK-37_939'||app.length!==release.bytes||app.length>216800||await sha256hex(app)!==release.sha256)throw Error('Core verification failed');
+ const built=await buildSmkPublicPackage(stock,app,{...release,public:true,board:'SMK-37 Pro',version:'GAMEDUDE SMK 939'});
  image=built.image;packet=built.bytes;expected=release.product;
 }
 await fs.mkdir(out,{recursive:true});

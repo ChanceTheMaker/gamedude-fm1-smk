@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
-globalThis.Image=class{complete=true;naturalWidth=192;decode(){return Promise.resolve();}};
+globalThis.Image=class{complete=true;naturalWidth=342;naturalHeight=50;decode(){return Promise.resolve();}};
 let reduced=false,frames=[];globalThis.matchMedia=()=>({matches:reduced});globalThis.requestAnimationFrame=fn=>frames.push(fn);
 const {bootSplash,landingDing,splashY}=await import('../web/branding.js');
-const ctx={fillRect(){},drawImage(){},fillText(){}};
+const ctx={fillRect(){},drawImage(image,x,y,w,h){assert.ok(Number.isFinite(w)&&w>0&&Number.isFinite(h)&&h>0);},fillText(){}};
 async function sequence(reduce){reduced=reduce;let rings=0,done=false;const p=bootSplash(ctx,()=>rings++).then(()=>done=true);await Promise.resolve();await Promise.resolve();
  for(const ms of [0,100,499,500,600,800,1100,1500]){const q=frames;frames=[];q.forEach(f=>f(ms));await Promise.resolve();}
  await p;assert.equal(rings,1);assert.equal(done,true);assert.equal(frames.length,0);

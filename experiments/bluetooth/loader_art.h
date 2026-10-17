@@ -1,6 +1,6 @@
 /* SPDX-License-Identifier: GPL-3.0-only */
 /* Original GameDude adaptation of NESynth pixel artwork. Render clipped strips into the existing LCD
- * workspace; no bitmap, new framebuffer, allocation, or cartridge space. */
+ * workspace; the shared flash wordmark needs no new framebuffer or allocation. */
 #ifndef NP_LOADER_ART_H
 #define NP_LOADER_ART_H
 #include <stdint.h>
@@ -28,11 +28,11 @@ static void np_art_center(np_art *a,unsigned y,const char *s,unsigned scale,uint
     np_art_text(a,width<240?(240-width)/2:0,y,s,scale,color);
 }
 static void np_art_logo(np_art *a){
-    /* Same 5x7 letters, four-pixel cells and rainbow colors as the website SVG
-     * and boot splash. Draw through the strip clipper, without a framebuffer. */
-    for(unsigned letter=0;letter<8;letter++)for(unsigned row=0;row<7;row++)
-        for(unsigned col=0;col<5;col++)if(gd_letters[letter][row]&(16u>>col))
-            np_art_box(a,26+letter*24+col*4,24+row*4,4,4,gd_colors[letter]);
+    /* Same generated wordmark as the website and boot splash, clipped to the strip. */
+    for(unsigned row=0;row<GD_MARK_HEIGHT;row++)for(unsigned col=0;col<GD_MARK_WIDTH;col++){
+        unsigned ink=gd_mark_index(col,row);
+        if(ink)np_art_box(a,(240-GD_MARK_WIDTH)/2+col,24+row,1,1,gd_mark_palette[ink]);
+    }
 }
 static void np_loader_art(uint16_t *pixels,unsigned top,unsigned height,const char *status,unsigned percent,unsigned state){
     np_art a={pixels,top,height};
