@@ -42,3 +42,18 @@ document.addEventListener('gamedude-loading',e=>{
     if(e.detail)selectTab('games');
 });
 document.addEventListener('gamedude-install-busy',e=>loader.setBlocked(e.detail));
+
+// The two device-interaction tabs share one hardware selection.
+const firmwareModel=document.querySelector('#flash-model'),gameModel=document.querySelector('#device-model');
+let lastSmk=firmwareModel.value.startsWith('smk-')?firmwareModel.value:'smk-pro';
+function syncGameModel(){
+    if(firmwareModel.value.startsWith('smk-'))lastSmk=firmwareModel.value;
+    gameModel.value=firmwareModel.value==='fm1'?'fm1':'smk37';
+}
+firmwareModel.addEventListener('change',syncGameModel);
+gameModel.addEventListener('change',()=>{
+    if(firmwareModel.disabled)return;
+    const next=gameModel.value==='fm1'?'fm1':lastSmk;
+    if(firmwareModel.value!==next){firmwareModel.value=next;firmwareModel.dispatchEvent(new Event('change'));}
+});
+syncGameModel();

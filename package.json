@@ -3,8 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node tests/branding.mjs && node tests/audio.mjs && node tests/firmware.mjs && node tests/install_flow.mjs && node tests/restore.mjs && node tests/discovery.mjs && node tests/update_progress.mjs",
+    "test": "node tests/branding.mjs && node tests/audio.mjs && node tests/firmware.mjs && node tests/install_flow.mjs && node tests/restore.mjs && node tests/discovery.mjs && node tests/update_progress.mjs && node tests/native_smk_client.mjs",
     "test:library": "node tests/rom_smoke.mjs",
-    "test:homebrew": "node tests/homebrew.mjs"
+    "test:homebrew": "node tests/homebrew.mjs",
+    "test:usb-helper": "python tests/native_smk.py && python tests/native_smk_http.py && python tests/native_smk_lock.py"
   }
 }

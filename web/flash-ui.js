@@ -5,7 +5,7 @@ import {restoreLatest} from './restore-firmware.js?v=fm1current2';
 import {createProgress,PROGRESS_EVENT,progressView} from './update-progress.js?v=20261013';
 import {SMK_MODELS,getSmkStock,prepareSmkRestore} from './smk-firmware.js?v=963';
 import {installSmkFirmware,smkIdentity,SMK_PORT_PATTERN} from './smk-install.js';
-import {hasNativeSmk,runNativeSmk} from './native-smk.js?v=974';
+import {hasNativeSmk,runNativeSmk,needsHostedSmkHelper} from './native-smk.js?v=hosted-helper2';
 const $=id=>document.getElementById(id);
 const isFm=()=>$('flash-model').value==='fm1';
 const modelName=()=>isFm()?'FM-1':SMK_MODELS[$('flash-model').value];
@@ -25,8 +25,8 @@ function controls(){
  const locked=deviceLocked||busy,model=modelName();
  for(const id of ['connect-device','flash-model','restore-device','retry-install'])$(id).disabled=locked;
  $('flash-device').disabled=locked;
- $('connect-device').textContent=operation==='connect'?'Connecting…':connectionChecked?'Check connection again':'Connect '+model;
- $('flash-device').textContent=operation==='prepare'?'Preparing GameDude…':operation==='firmware'?'Installing…':installed?(isFm()?'Check firmware':'Reinstall GameDude'):'Install GameDude on '+model;
+ $('connect-device').textContent=operation==='connect'?'Connecting…':connectionChecked?'Check '+model+' connection again':'Connect '+model;
+ $('flash-device').textContent=operation==='prepare'?'Preparing GameDude…':operation==='firmware'?'Installing…':installed?(isFm()?'Check '+model+' firmware':'Reinstall GameDude on '+model):'Install GameDude on '+model;
  $('connect-state').textContent=connectionChecked?'Checked':'USB';
  $('install-state').textContent=installed?'Verified':'Not installed';
  const completed=[connectionChecked,installed];
@@ -39,6 +39,10 @@ function controls(){
 }
 function available(){
  const model=modelName(),fm=isFm();
+ $('deck-intro').textContent='Connect your '+model+' by USB and install GameDude. The correct firmware is included automatically. Then use Add games to build your library.';
+ $('restore-device').textContent='Restore M-VAVE firmware on '+model;
+ $('loader-model').textContent='Continue only if the connected instrument is '+model+'.';
+ $('confirm-model').textContent='It is '+model;
  $('firmware-heading').textContent='Install GameDude on your '+model+'.';
  $('connect-heading').textContent='Connect your '+model;
  $('connect-hint').textContent=fm?'Factory M-VAVE V15 and updater-enabled firmware work here. Close other MIDI apps and unplug other instruments.':'Official M-VAVE 016 and updater-enabled firmware work here. Connect only the selected SMK model and close other MIDI apps.';
@@ -46,6 +50,12 @@ function available(){
  $('restore-status').textContent='Connect your '+model+', then press Restore M-VAVE firmware.';
  $('connection-help-title').textContent=model+' not showing up?';
  $('connection-help-copy').textContent='Connect only the '+model+' directly by USB, allow MIDI / SysEx access, and close other MIDI apps or browser tabs. Older builds without a USB updater need the recovery adapter. If GameDude is in Bluetooth mode, restart it before installing firmware.';
+ $('smk-helper-help').hidden=!needsHostedSmkHelper($('flash-model').value);
+ if(needsHostedSmkHelper($('flash-model').value)){
+  $('connect-copy').textContent='Connect your '+model+' directly to this computer with a USB data cable. Keep the GameDude USB helper running.';
+  $('connect-hint').textContent='Allow local-network access if Chrome asks. The helper handles USB outside the browser.';
+  $('connection-help-copy').textContent='Start the GameDude Windows USB helper, connect the SMK by USB, and allow local-network access. Then retry here.';
+ }else $('connect-copy').textContent='Connect your '+model+' directly to this computer with a USB data cable. Use Chrome or Edge and allow MIDI access. Restart GameDude before a firmware update so Bluetooth is off.';
  $('flash-availability').textContent='USB setup · Chrome or Edge on a computer.';
  controls();
 }

@@ -133,3 +133,22 @@ The public staging tool only copies manifest-listed homebrew files after verifyi
 The top navigation includes an Install link to the firmware panel. The footer links to SMKLAB, Doom, Felucca SMK, Sloop SMK and Melodee SMK, matching the project family navigation.
 
 The website, simulator and build 939 firmware share a solid italic GameDude wordmark. The small-screen artwork is generated from the same glyphs as the SVG logos; game storage capacity is unchanged.
+
+
+## Windows SMK USB helper
+
+The live website uses a local USB helper for SMK-37 Pro firmware installation on Windows. Chrome's Windows MIDI backend can freeze when the stock SMK disconnects and reappears as its updater. Closing a Web MIDI port or adding a delay did not fix that transition. The helper performs each USB stage in a separate process while the same live website displays progress. FM-1 and non-Windows browser installation are unchanged; Elite does not yet have the native helper path.
+
+Install Python 3.12 and Node.js 22 or newer, download or clone this repository, then run from its folder:
+
+```powershell
+python tools/start_windows_usb.py
+```
+
+The first run installs pinned MIDI dependencies inside `build/python-deps` and downloads the SHA-256-verified official Pro 016 base if missing. Leave the helper running, use the normal live GameDude site, select SMK-37 Pro, and click Connect or Install. Allow Chrome's local-network permission if prompted. No Chrome flag changes or different browser are needed. Stop the helper with Ctrl+C when finished; start it again for later installs. Games still use the existing Bluetooth / USB uploader.
+
+`--allow-hosted` explicitly enables the official GitHub Pages origin on a loopback-only listener. Other origins and Host headers are rejected. Hosted mutations require a per-process token obtained through the allowed capability request, JSON requests and fixed actions; callers cannot provide firmware bytes, shell commands or filesystem paths. The page fails before requesting Web MIDI when the Windows Pro helper is absent, incompatible or permission is denied. A failed status request does not retry programming automatically. The existing local service still works without hosted access enabled.
+
+This helper identifies itself as `gamedude` and accepts only this site's pinned `SMK-37_939` core or the verified original Pro 016 firmware. The other GameDude edition uses its own port and package. Local ROM browsing remains loopback-only.
+
+All three helpers use the same Windows file lock, so a second site cannot start an SMK operation during another update. Helper tests: `npm run test:usb-helper`; hosted browser regression: `node tests/native_smk_ui.mjs` with Playwright installed or `PLAYWRIGHT_MODULE` set.
