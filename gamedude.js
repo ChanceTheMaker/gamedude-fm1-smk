@@ -55,7 +55,7 @@ function present(){requestAnimationFrame(present);if(videoDirty&&loaded&&!paused
 requestAnimationFrame(present);
 function download(bytes,name){const url=URL.createObjectURL(new Blob([bytes]));const a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 async function load(buffer,name='cartridge.gb'){
-  if(loading||$('rom').disabled)return false;loading=true;document.dispatchEvent(new Event('gamedude-rom-clear'));status('Opening cartridge…');
+  if(loading||$('rom').disabled)return false;loading=true;document.dispatchEvent(new CustomEvent('gamedude-loading',{detail:true}));document.dispatchEvent(new Event('gamedude-rom-clear'));status('Opening cartridge…');
   try{await ensureEngine();const rom=await cartridge(buffer);if(rom.byteLength>8388608)throw Error('Cartridge exceeds 8 MiB.');
     const hash=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',rom)),b=>b.toString(16).padStart(2,'0')).join('');
     saveNow();release();loaded=false;flushAudio();new Uint8Array(core.memory.buffer,core.gp_upload(),rom.byteLength).set(new Uint8Array(rom));
@@ -68,7 +68,7 @@ async function load(buffer,name='cartridge.gb'){
     loaded=true;paused=false;nextFrame=0;rateStart=rateFrames=0;$('pause').textContent='Pause';$('title').textContent=gameName;$('lamp').classList.add('on');$('pause').disabled=$('reset').disabled=false;$('save').disabled=$('exportSave').disabled=!saveSize;
     status('Playing · '+gameName);$('saved').textContent=saveSize?'Battery RAM saves automatically in this browser.':'This cartridge has no save RAM.';$('screen').focus({preventScroll:true});return true;
   }catch(e){status(e.message||'Could not decompress this ZIP. Try an extracted .gb file.');if(!loaded){$('lamp').classList.remove('on');$('pause').disabled=$('reset').disabled=$('exportSave').disabled=$('save').disabled=true;}}
-  finally{loading=false;}
+  finally{loading=false;document.dispatchEvent(new CustomEvent('gamedude-loading',{detail:false}));}
 }
 $('demo').onclick=async()=>{try{startAudio();await load(await(await fetch('diagnostic.gb')).arrayBuffer(),'diagnostic.gb');}catch(e){status(e.message);}};
 async function openFile(f){if(!f||$('rom').disabled)return;if(f.size>16*1024*1024){status('File is too large.');return;}startAudio();await load(await f.arrayBuffer(),f.name);}
@@ -116,3 +116,9 @@ if(!allGames.length){if($('library-details'))$('library-details').hidden=true;$(
 if(!loaded&&!loading)idleLogo(ctx);
 
 initHomebrew({canLoad:()=>!loading&&!$('rom').disabled,startAudio,load});
+
+let deviceBusy=false,installBusy=false;
+function deviceLocks(){const locked=deviceBusy||installBusy;for(const id of ['rom','demo','stock-play','openLibrary']){const e=document.getElementById(id);if(e)e.disabled=locked;}}
+document.addEventListener('gamedude-device-state',e=>{deviceBusy=e.detail.busy;deviceLocks();});
+document.addEventListener('gamedude-install-busy',e=>{installBusy=e.detail;deviceLocks();});
+for(const type of ['dragover','drop'])document.addEventListener(type,e=>{if(!Array.from(e.dataTransfer?.types||[]).includes('Files'))return;e.preventDefault();if(type==='drop'&&!document.getElementById('dropzone').contains(e.target)&&e.target.closest('#hardware,.screen-shell,#large-screen'))openFile(e.dataTransfer.files[0]);});

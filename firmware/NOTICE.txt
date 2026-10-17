@@ -3,3 +3,5 @@ Peanut-GB and MiniGB APU retain MIT notices in the source.
 Felucca: Copyright 2026 Leo Kuroshita, Huegelton Instruments. SMK/MusicCoach adaptations by Chance Roth / ChanceTheMaker.
 JieLi Technology AC79 SDK: Apache-2.0. Packages contain unmodified uboot.boot, cfg_tool.bin and eq_cfg_hw.bin. The SDK has no NOTICE file.
 Only the original project diagnostic cartridge is included. User ROMs are inserted locally.
+
+GameDude v2.0 library/Bluetooth integration adapts NESynth dbe06ccf002f2e76a04357501a5e816d98f9b819 (GPL-3.0-only) and DEADACTIVE Hortator 7e3415971c5800b4a3ad0146a7d95615883d7d96 (GPL-3.0-only). JieLi AC79 SDK notices remain applicable to the linked libraries. Public cores contain no private calibration or commercial ROMs. See vendor/library-provenance.json and tools/build_bluetooth_probe.py in the source repository for pinned inputs and adaptations.

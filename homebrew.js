@@ -1,7 +1,7 @@
 // Only audited local cartridges from the public manifest can enter this picker.
 export async function verifiedCartridge(game,fetcher=fetch){
  if(!/^[a-z0-9-]+\.gb$/.test(game.file)||!Number.isSafeInteger(game.bytes)||game.bytes<32768||game.bytes>524288||!/^[a-f0-9]{64}$/.test(game.sha256))throw Error('Invalid homebrew catalog entry.');
- const response=await fetcher(new URL('homebrew/'+game.file,import.meta.url));
+ const response=await fetcher(new URL('homebrew/'+game.file+'?sha='+game.sha256,import.meta.url));
  if(!response.ok)throw Error('Cartridge download failed. Please try again.');
  const bytes=await response.arrayBuffer();
  const sha=Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',bytes)),b=>b.toString(16).padStart(2,'0')).join('');
@@ -22,7 +22,7 @@ export async function initHomebrew({canLoad,startAudio,load}){
   play.onclick=async()=>{
    if(pending||!canLoad())return;pending=true;select.dataset.loading='true';play.disabled=true;select.disabled=true;startAudio();
    const g=games.find(g=>g.id===select.value);message.textContent='Opening '+g.title+'...';
-   try{const bytes=await verifiedCartridge(g);if(!canLoad())throw Error('Finish the current operation, then select this cartridge again.');const ok=await load(bytes,g.title+'.gb');message.textContent=ok?g.title+' loaded. Play here or prepare it for FM-1.':'Unable to open this cartridge. See player status.';}
+   try{const bytes=await verifiedCartridge(g);if(!canLoad())throw Error('Finish the current operation, then select this cartridge again.');const ok=await load(bytes,g.title+'.gb');message.textContent=ok?g.title+' loaded. Play here or send it to your device.':'Unable to open this cartridge. See player status.';}
    catch(e){message.textContent=e.message;}
    finally{pending=false;delete select.dataset.loading;play.disabled=select.disabled=!canLoad();}
   };
