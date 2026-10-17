@@ -49,6 +49,8 @@ The builder uses the pinned Hortator/AC79 SDK dependencies retained under the ne
 
 ## Instrument controls
 
+On SMK, Fader 1 controls volume. Fader 2 adjusts pad brightness from off to full (0-255); startup stays at 150 until the fader moves. Held pads go dark and relight on release.
+
 Count white and black keys separately from the left. Assigned keys/pads light up. On physical FM-1 firmware 936, pressing a piano key turns off every piano-key LED mapped to the same action. They relight when the last matching key is released; unrelated keys stay lit. This applies to both Left keys, both Right keys, both Up keys, and the other assigned piano keys. The simulator retains its existing press effect.
 
 These mappings are in the simulator and v2.0 firmware (internal build 938). B and A occupy the final two white keys, with no skipped white key. Select is to the left of Start: PLAY selects and RECORD starts. Install the v2.0 core to update older device mappings.
