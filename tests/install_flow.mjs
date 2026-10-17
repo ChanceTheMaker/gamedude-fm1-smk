@@ -36,3 +36,13 @@ mutable.fill(0);const t=transport({restart:meta.product});await installFirmware(
 assert.deepEqual(t.Transport.image,logicalImage(bytes));
 assert.equal(fm1Identity({model:'ota-SMK-37 Pro'}),false);
 console.log('PASS: FM-1 / Doom handoffs, active-loader resume, cancellation, interruptions, exact restart, immutable package and cleanup.');
+
+// Same-release installs must not enter the factory loader's unchanged-image loop.
+{
+ const t=transport({start:meta.product,restart:meta.product});let current=0;
+ assert.equal(await installFirmware({},pkg,()=>{},{Transport:t.Transport,skipCurrent:true,onCurrent:()=>current++}),meta.product);
+ assert.equal(current,1);assert.deepEqual(t.calls,['find']);assert.ok(t.links.every(l=>l.closed));
+ const forced=transport({start:meta.product,restart:meta.product});
+ await installFirmware({},pkg,()=>{},{Transport:forced.Transport});assert.ok(forced.calls.includes('write'));
+}
+console.log('PASS: current-release confirmation avoids updater handoff; explicit repair transport still available.');

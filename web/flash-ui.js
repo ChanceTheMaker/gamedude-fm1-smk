@@ -1,7 +1,7 @@
-import {loadGamedudeFirmware} from './gamedude-firmware.js?v=fm1ports1';
-import {Updater} from './vendor/fm1ota.js?v=fm1ports1';
-import {installFirmware,fm1Identity} from './install-firmware.js?v=fm1ports1';
-import {restoreLatest} from './restore-firmware.js?v=fm1ports1';
+import {loadGamedudeFirmware} from './gamedude-firmware.js?v=fm1current2';
+import {Updater} from './vendor/fm1ota.js?v=fm1current2';
+import {installFirmware,fm1Identity} from './install-firmware.js?v=fm1current2';
+import {restoreLatest} from './restore-firmware.js?v=fm1current2';
 import {createProgress,PROGRESS_EVENT,progressView} from './update-progress.js?v=20261013';
 import {SMK_MODELS,getSmkStock,prepareSmkRestore} from './smk-firmware.js?v=963';
 import {installSmkFirmware,smkIdentity,SMK_PORT_PATTERN} from './smk-install.js';
@@ -26,7 +26,7 @@ function controls(){
  for(const id of ['connect-device','flash-model','restore-device','retry-install'])$(id).disabled=locked;
  $('flash-device').disabled=locked;
  $('connect-device').textContent=operation==='connect'?'Connecting…':connectionChecked?'Check connection again':'Connect '+model;
- $('flash-device').textContent=operation==='prepare'?'Preparing GameDude…':operation==='firmware'?'Installing…':installed?'Reinstall GameDude':'Install GameDude on '+model;
+ $('flash-device').textContent=operation==='prepare'?'Preparing GameDude…':operation==='firmware'?'Installing…':installed?(isFm()?'Check firmware':'Reinstall GameDude'):'Install GameDude on '+model;
  $('connect-state').textContent=connectionChecked?'Checked':'USB';
  $('install-state').textContent=installed?'Verified':'Not installed';
  const completed=[connectionChecked,installed];
@@ -34,7 +34,7 @@ function controls(){
   $('step-'+step).dataset.complete=String(completed[i]);
   $('step-'+step).dataset.current=String(i===completed.indexOf(false));
  });
- $('install-help').textContent=installed?'Restart verified. Use Add games to load your library.':'The correct GameDude firmware is downloaded and verified automatically.';
+ $('install-help').textContent=installed?'Firmware verified. Use Add games to load your library.':'The correct GameDude firmware is downloaded and verified automatically.';
  document.dispatchEvent(new CustomEvent('gamedude-install-busy',{detail:busy}));
 }
 function available(){
@@ -115,11 +115,11 @@ async function run(action){
    operation='prepare';controls();progress.stage('prepare','Preparing GameDude firmware');message('Downloading and verifying GameDude for '+model+'…');
    prepared=await loadGamedudeFirmware($('flash-model').value);log('GameDude core verified: '+prepared.product);operation='firmware';controls();message('GameDude verified. Connecting to '+model+'…');
   }
-  access=await midi();$('device-status').textContent='USB access granted. Finding '+model+'…';const options={confirmGeneric};
+  access=await midi();$('device-status').textContent='USB access granted. Finding '+model+'…';let alreadyCurrent=false;const options={confirmGeneric,skipCurrent:action==='firmware',onCurrent:()=>{alreadyCurrent=true;}};
   let product;if(fm)product=action==='restore'?await restoreLatest(access,log,options):await installFirmware(access,prepared.install,log,options);else{const handle=action==='restore'?await prepareSmkRestore(await stockFor(model),model):prepared.install;product=await installSmkFirmware(access,handle,log,options);}
-  installed=action==='firmware';connectionChecked=true;progress.done();$('device-status').textContent='Restart verified: '+product;
+  installed=action==='firmware';connectionChecked=true;progress.done(alreadyCurrent?'Current firmware confirmed':undefined);$('device-status').textContent=(alreadyCurrent?'Already running: ':'Restart verified: ')+product;
   if(action==='restore'){$('restore-status').textContent='M-VAVE '+(fm?'V15':'016')+' restored and restart verified.';message('Your '+model+' is back on its original M-VAVE firmware.');}
-  else message('GameDude installed and restart verified on '+model+'. Open Add games to load your library.');
+  else message(alreadyCurrent?'Your '+model+' already has the current GameDude firmware. Open Add games to load your library.':'GameDude installed and restart verified on '+model+'. Open Add games to load your library.');
  }catch(e){
   connectionChecked=false;const error=readableError(e);log(error);message(error,true);progress.fail();
   if(action==='restore')$('restore-status').textContent=error;

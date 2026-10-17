@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // GameDude adaptation of the Sloop/Felucca transport and MusicCoach FM-1 handoff.
-import {Updater} from './vendor/fm1ota.js?v=fm1ports1';
+import {Updater} from './vendor/fm1ota.js?v=fm1current2';
 import {Package,logicalImage,sha256hex} from './vendor/fm1pkg.js?v=20261013';
 import {reportProgress} from './update-progress.js?v=20261013';
 const verified=new WeakMap();
@@ -13,13 +13,18 @@ export async function prepareInstall(bytes,{product,sha256}){
   throw Error('Unsupported FM-1 firmware layout. Nothing was installed.');
  const pkg=Object.freeze({product,sha256});verified.set(pkg,logicalImage(bytes));return pkg;
 }
-export async function installFirmware(access,pkg,log=()=>{},{confirmGeneric,Transport=Updater}={}){
+export async function installFirmware(access,pkg,log=()=>{},{confirmGeneric,skipCurrent=false,onCurrent=()=>{},Transport=Updater}={}){
  if(!verified.has(pkg))throw Error('Prepare a verified firmware package first.');
  const image=verified.get(pkg).slice(),up=new Transport(access,log);let link;
  try{
   let dev=await up.findAny(fm1Identity);
   if(!dev)throw Error('No updater-enabled FM-1 found. Connect only the FM-1 using a data cable and close other MIDI apps. Older firmware without a USB updater needs the recovery adapter.');
   link=dev.link;log('Connected: '+dev.id.text+' on '+dev.name);
+  // The factory updater loops over directory headers when the image is unchanged.
+  // A normal install can confirm the running release without entering that loader.
+  if(skipCurrent&&dev.id.text===pkg.product){
+   log('Already running '+pkg.product+'. No firmware transfer needed.');onCurrent();return dev.id.text;
+  }
   // Some Elite loaders also call themselves ota-FM-1. Never infer the board
   // from that generic identity when resuming a separately started session.
   if(dev.id.model==='ota-FM-1'&&(!confirmGeneric||!await confirmGeneric(dev.id.text)))
