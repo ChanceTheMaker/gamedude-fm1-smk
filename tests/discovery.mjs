@@ -36,3 +36,16 @@ input.connection='closed';input.open=()=>new Promise(()=>{});
 assert.equal(await up.findAny(filter,{probeMs:1,openMs:5}),null);
 assert.equal(input.listeners,0);
 console.log('PASS hung port open times out instead of freezing installer');
+
+// USB descriptors differ from SysEx identities. Both stages of the Color updater
+// and the supported Doom handoff must be discoverable by the default FM-1 filter.
+for(const [name,identity] of [['Doom','Doom-FM-1_016'],['GameDude Color FM1','FM-1_983'],['GameDude Color Update','ota-FM-1_983'],['Felucca','FM-1_937'],['FM-1','FM-1_015']]){
+ const input=new Port('in',name+' 0','input'),output=new Port('out',name+' 1','output');
+ const unrelated=new Port('virtual','Microsoft GS Wavetable Synth','output');
+ const access={inputs:new Map([['in',input]]),outputs:new Map([['out',output],['virtual',unrelated]])};
+ output.respond=()=>input.receive(identity);
+ const updater=new Updater(access),filter=id=>['FM-1','ota-FM-1','Doom-FM-1','ota-Doom-FM-1'].includes(id.model);
+ const device=await updater.findAny(filter,{probeMs:1});assert.equal(device?.id.text,identity,name+' must be discoverable');await device.link.close();assert.equal(unrelated.opens,0);
+ output.respond=()=>input.receive('SMK-37_983');assert.equal(await updater.findAny(filter,{probeMs:1}),null,'Names must not override the actual board identity');
+}
+console.log('PASS FM-1 discovery from Doom, Color app and Color updater ports; wrong-board identities rejected.');
