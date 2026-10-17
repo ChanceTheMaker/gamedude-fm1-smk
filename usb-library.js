@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-3.0-only
 // Cartridge commands over USB MIDI. Never sends a firmware-upgrade command.
-import {Updater} from './vendor/fm1ota.js';
+import {Updater} from './vendor/fm1ota.js?v=fm1ports1';
 const PREFIX=[0xf0,0x7d,71,85];
 export function usbRequest(sequence,kind,bytes=new Uint8Array()){
     if(!Number.isInteger(sequence)||sequence<0||sequence>16383||![0,1].includes(kind)||bytes.length>244||(!kind&&bytes.length))throw Error('Invalid USB library request.');

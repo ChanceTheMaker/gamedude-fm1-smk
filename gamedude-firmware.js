@@ -2,7 +2,7 @@
 import {buildFeluccaPackage,sha256hex} from './vendor/fm1pkg.js?v=20261013';
 import {buildSmkPublicPackage} from './vendor/smk37-package.js';
 import {SMK_MODELS,getSmkStock} from './smk-firmware.js?v=963';
-import {prepareFirmwareFile} from './firmware-file.js?v=solid1';
+import {prepareFirmwareFile} from './firmware-file.js?v=fm1ports1';
 
 export async function loadGamedudeFirmware(model,fetcher=fetch){
  if(model!=='fm1'&&!SMK_MODELS[model])throw Error('Choose your instrument.');
