@@ -12,6 +12,13 @@ files=['hero.js','artwork/game-stack.png','artwork/game-trail.png','artwork/game
        'vendor/fm1pkg.js','vendor/fm1ota.js','firmware/fm1-template.fwsc',
        'firmware/template.json','firmware/fm1-original.fwsc','firmware/original.json','firmware/GPL-3.0.txt','firmware/MIT-Peanut-GB.txt',
        'firmware/Apache-2.0.txt','firmware/NOTICE.txt']
+files.extend(['device-loader.js','main-loader.js','device-loader.css','bluetooth-transfer.js','bluetooth-library.js','usb-library.js','gamedude-firmware.js','firmware-file.js','smk-format.js','smk-install.js','smk-firmware.js','native-smk.js','vendor/smk37-package.js','vendor/smk37-stock.js','firmware/gamedude.json','firmware/gamedude-fm1-938.bin','firmware/gamedude-smk37-938.bin'])
+release=json.loads((WEB/'firmware/gamedude.json').read_text())
+assert release['version']==938
+for model,item in release['models'].items():
+    assert item['file'] in files
+    core=(WEB/item['file']).read_bytes()
+    assert len(core)==item['bytes'] and hashlib.sha256(core).hexdigest()==item['sha256']
 files.extend(['homebrew.js','homebrew/catalog.json','homebrew/NOTICE.txt'])
 stock=json.loads((WEB/'homebrew/catalog.json').read_text())
 assert stock['schema']==1

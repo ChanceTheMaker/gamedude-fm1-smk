@@ -4,8 +4,8 @@ from pathlib import Path
 from diagnostic import make_rom
 from prepare_apu import prepare
 ROOT=Path(__file__).resolve().parents[1]
-DEFAULT_ZIG=Path('E:/AI_Apps/Felucca/Felucca-website/build/wasm-tools/ziglang/zig.exe')
-DEFAULT_TC='/mnt/e/AI_Apps/Felucca/Felucca-review/.build-deps/jieli/jieli-linux-toolchains-20250324.1'
+DEFAULT_ZIG=ROOT.parent/'Felucca/Felucca-website/build/wasm-tools/ziglang/zig.exe'
+DEFAULT_TC='/mnt/e/AI_Apps/FM1-SMK/Felucca/Felucca-review/.build-deps/jieli/jieli-linux-toolchains-20250324.1'
 def run(args):
     subprocess.run(list(map(str,args)),cwd=ROOT,check=True)
 def rom_bytes(path):
@@ -65,6 +65,9 @@ def native(a,sources):
     storage=rom+b'\xff'*(capacity-len(rom))
     (out/'cartridge.h').write_text('/* Local cartridge; never publish game ROMs. */\nstatic const unsigned char cartridge[] = {\n'+
         ',\n'.join(','.join(str(b) for b in storage[i:i+32]) for i in range(0,len(storage),32))+'\n};\n')
+    if a.target=='smk37':
+        from build_smk_loader import build as build_loader
+        gen,loader=build_loader(a.toolchain,out)
     rel=out.relative_to(ROOT).as_posix()
     def tc(tool,*args):
         run(['wsl','-e',f'{a.toolchain}/{tool}',*args])
@@ -72,6 +75,7 @@ def native(a,sources):
         '-DMINIGB_APU_AUDIO_FORMAT_S16SYS','-DAUDIO_SAMPLE_RATE=44100',
         '-Isrc','-Isrc/freestanding','-Ivendor/peanut-gb','-Ivendor/felucca/firmware/hal','-I'+rel,
         '-DGB_SMK37='+str(int(a.target=='smk37')),'-Wall','-Wno-unused-function']
+    if a.target=='smk37':flags+=['-I'+str(gen.relative_to(ROOT)).replace('\\','/')]
     inputs=[*sources,'src/libc.c','firmware/board.c','firmware/start.S','vendor/felucca/firmware/hal/fm1_vec.S']
     objects=[]
     for i,src in enumerate(inputs):
@@ -111,6 +115,8 @@ def native(a,sources):
       'cartridge_offset':sym('cartridge')-0x2000120,'cartridge_capacity':capacity,
       'cartridge':'original diagnostic' if a.rom is None else 'private user cartridge',
       'flash_writes':'OTA staging 0xe0000..0xe5000 only' if a.target=='fm1' else False,
-      'usb_updater':a.target=='fm1','save_persistence':'session RAM only'}
+      'usb_updater':True,'save_persistence':'session RAM only'}
+    result['app_bytes']=len(image)
+    if a.target=='smk37':result.update(usb_protocol='smk37-ram-v2',product=loader['product'],loader=loader)
     (out/'manifest.json').write_text(json.dumps(result,indent=2)+'\n');print(json.dumps(result,indent=2))
 if __name__=='__main__':main()

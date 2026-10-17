@@ -35,6 +35,7 @@ volatile smk37_bootguard_t gb_bootguard __attribute__((section(".noinit")));
 #include "smk37_audio.h"
 #include "smk37_lcd_hw.h"
 #include "smk37_panel.h"
+#include "smk37_scan_config.h"
 #include "smk37_scanner.h"
 #include "smk37_contacts.h"
 #include "smk37_keyscan.h"
@@ -43,6 +44,9 @@ volatile smk37_bootguard_t gb_bootguard __attribute__((section(".noinit")));
 #include "smk37_lights_hw.h"
 #include "smk37_game_controls.h"
 #include "smk37_game_pads.h"
+#include "smk37_volume.h"
+static volatile uint32_t smk_volume_target=64;
+static uint32_t smk_volume_current=64;
 static smk37_keyscan_t keys[37];
 static smk37_adc_t pad_adc;
 static smk37_controls_t panel_controls;
@@ -57,6 +61,7 @@ void gb_scan_irq(void) {
     if(!(SMK37_SCAN_CON&0x8000u))return;
     unsigned index=pad_adc.scan.index;
     int result=smk37_adc_spi_done(&pad_adc);
+    if(result>0)smk_volume_target=smk_volume_sample(smk_volume_target,index,pad_adc.scan.raw[index]);
     if(result>0)for(unsigned p=0;p<16;p++)if(index==smk37_pad_input[p])
         gb_smk37_pad_sample(&game_pads,p,pad_adc.scan.raw[index]);
     if(result<0)game_pads.held=game_pads.pressed=0;
@@ -78,7 +83,8 @@ void gb_audio_irq(void) {
     uint8_t p=smk37_audio_pending();smk37_audio_ack_aux(p);
     if(!(p&SMK37_AUDIO_HALF))return;
     unsigned h=smk37_audio_free_half();read_samples();
-    for(unsigned i=0;i<512;i++)dma[h*512+i]=(int32_t)samples[i]*256;
+    uint32_t target=smk_volume_target;
+    smk_volume_render(dma+h*512,samples,smk_volume_current,target);smk_volume_current=target;
     audio_count++;smk37_audio_ack_half();
 }
 static int display_init(void){smk37_lcd_hw_init(4);return smk37_panel_init(&panel);}
@@ -86,11 +92,13 @@ static void display_frame(void){
     if(smk37_panel_window(&panel,0,12,240,216))lcd_data(screen,sizeof screen);
 }
 static int display_ready(void){return 1;}
+static void display_stop(void){}
 static void input_init(void){
     smk37_adc_init(&pad_adc);
     SMK37_LIGHT_REG(0x50080u)&=~(1u<<10);
     SMK37_LIGHT_REG(0x50088u)&=~(1u<<10);
     smk37_scan_set_analog(smk37_analog_mask(&pad_adc.scan));
+    smk37_scan_indicator_bits=(1u<<16)|(1u<<18); /* PLAY green, REC red. */
     smk37_scan_init(fm1_irq_attach,gb_isr_scan);
     uint32_t rgb[16]={0};
     for(unsigned p=0;p<16;p++)if(gp_smk37_pad_lights()&(1u<<p))
@@ -106,6 +114,7 @@ static uint32_t smk_input_frame(void){
 }
 static void audio_start(void){(void)smk37_audio_init(dma,512,gb_isr_audio,3,&audio_hooks);}
 static void audio_stop(void){smk37_audio_stop();}
+#include "smk37_recovery.h"
 #else
 #include "fm1_timer.h"
 #include "fm1_input.h"
@@ -167,8 +176,8 @@ static void piano_lights(uint32_t held_actions){
 static void input_init(void){
     fm1_input_init();
     piano_lights(0);
-    fm1_led_key(12,1); /* PLAY / Start */
-    fm1_led_key(13,1); /* REC / Select */
+    fm1_led_key(12,1); /* PLAY / Select */
+    fm1_led_key(13,1); /* REC / Start */
     fm1_timer5_start(gb_isr_scan,4);
 }
 static void audio_start(void){fm1_audio_init(dma,512,gb_isr_audio,3);}
@@ -239,9 +248,7 @@ void gb_cstart(const uint32_t *parameters){
     boot_splash(display_ok);
     for(unsigned i=0;i<4;i++)gp_frame();
     splash_active=0;
-#if !GB_SMK37
     recovery_init();
-#endif
     video_start(cold);
     uint32_t drawn=0,last=fm1_ticks(),elapsed=0,seconds=0;
     for(;;){
@@ -252,12 +259,12 @@ void gb_cstart(const uint32_t *parameters){
         input_buttons=gp_input_keys(key_lo,key_hi);
         piano_lights(input_buttons);
         /* Measured FM-1 panel IDs: PLAY=12, REC=13. */
-        if(fm1_in.buttons&(1u<<12))input_buttons|=GP_START;
-        if(fm1_in.buttons&(1u<<13))input_buttons|=GP_SELECT;
+        if(fm1_in.buttons&(1u<<12))input_buttons|=GP_SELECT;
+        if(fm1_in.buttons&(1u<<13))input_buttons|=GP_START;
         input_seen|=input_buttons;gp_buttons(input_buttons);
         master_poll();
-        recovery_service();
 #endif
+        recovery_service();
         if(gp_audio_queued()<2955){
 #if GB_SMK37
             input_buttons=smk_input_frame();input_seen|=input_buttons;gp_buttons(input_buttons);

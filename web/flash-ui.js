@@ -1,37 +1,55 @@
-﻿import {prepareFirmware} from './rom-firmware.js?v=20261013';
-import {Updater} from './vendor/fm1ota.js?v=20261013';
+import {loadGamedudeFirmware} from './gamedude-firmware.js?v=971';
+import {Updater} from './vendor/fm1ota.js?v=973';
 import {installFirmware,fm1Identity} from './install-firmware.js?v=20261013';
 import {restoreLatest} from './restore-firmware.js?v=20261013';
-import {createProgress} from './update-progress.js?v=20261013';
+import {createProgress,PROGRESS_EVENT,progressView} from './update-progress.js?v=20261013';
+import {SMK_MODELS,getSmkStock,prepareSmkRestore} from './smk-firmware.js?v=963';
+import {installSmkFirmware,smkIdentity,SMK_PORT_PATTERN} from './smk-install.js';
+import {hasNativeSmk,runNativeSmk} from './native-smk.js?v=974';
 const $=id=>document.getElementById(id);
-let rom=null,filename='',prepared=null,access=null,busy=false,downloadUrl=null,lastAction=null;
+const isFm=()=>$('flash-model').value==='fm1';
+const modelName=()=>isFm()?'FM-1':SMK_MODELS[$('flash-model').value];
+const stockCache=new Map();
+async function stockFor(model){if(!stockCache.has(model))stockCache.set(model,await getSmkStock(model));return stockCache.get(model).slice();}
+let prepared=null,access=null,busy=false,lastAction=null;
+let connectionChecked=false,installed=false,operation='',deviceLocked=false;
 const progress=createProgress($('install-log-heading'));
-const message=s=>$('flash-status').textContent=s;
-async function showAvailableVersion(){
- try{
-  const response=await fetch('firmware/template.json',{cache:'no-store'});
-  if(!response.ok)throw Error('Template unavailable');
-  const metadata=await response.json();
-  if(!/^FM-1_\d+$/.test(metadata.product))throw Error('Unknown firmware version');
-  if(!prepared)$('firmware-version').textContent='Firmware: '+metadata.product;
- }catch{if(!prepared)$('firmware-version').textContent='Firmware version shown after preparation.';}
-}
-
+const message=(s,error=false)=>{$('flash-status').textContent=s;$('flash-status').classList.toggle('error',error);};
+document.addEventListener(PROGRESS_EVENT,e=>{
+ if(!busy||!['firmware','restore'].includes(operation))return;
+ const view=progressView(e.detail);
+ message(view.label+(e.detail.phase==='transfer'?' — '+view.detail:'. Keep power and USB connected.'));
+ $('device-status').textContent=view.label;
+});
 function controls(){
- const fm=$('flash-model').value==='fm1';
- $('firmware-version').hidden=!fm;
- $('build-firmware').disabled=busy||!rom||!fm;$('connect-device').disabled=busy||!fm;
- $('flash-device').disabled=busy||!prepared||!fm;$('flash-model').disabled=busy;
- $('restore-device').disabled=busy||!fm;$('retry-install').disabled=busy;
- document.querySelectorAll('#rom,#demo,#openLibrary').forEach(e=>e.disabled=busy);
- document.querySelectorAll('[data-homebrew]').forEach(e=>e.disabled=busy||$('stock-game').dataset.ready!=='true'||$('stock-game').dataset.loading==='true');
+ const locked=deviceLocked||busy,model=modelName();
+ for(const id of ['connect-device','flash-model','restore-device','retry-install'])$(id).disabled=locked;
+ $('flash-device').disabled=locked;
+ $('connect-device').textContent=operation==='connect'?'Connecting…':connectionChecked?'Check connection again':'Connect '+model;
+ $('flash-device').textContent=operation==='prepare'?'Preparing GameDude…':operation==='firmware'?'Installing…':installed?'Reinstall GameDude':'Install GameDude on '+model;
+ $('connect-state').textContent=connectionChecked?'Checked':'USB';
+ $('install-state').textContent=installed?'Verified':'Not installed';
+ const completed=[connectionChecked,installed];
+ ['connect','install'].forEach((step,i)=>{
+  $('step-'+step).dataset.complete=String(completed[i]);
+  $('step-'+step).dataset.current=String(i===completed.indexOf(false));
+ });
+ $('install-help').textContent=installed?'Restart verified. Use Add games to load your library.':'The correct GameDude firmware is downloaded and verified automatically.';
+ document.dispatchEvent(new CustomEvent('gamedude-install-busy',{detail:busy}));
 }
 function available(){
- $('flash-availability').textContent=$('flash-model').value==='fm1'?
-  'FM-1 trial firmware. Chrome or Edge with USB MIDI access.':
-  'SMK37 controls are available in the simulator. Hardware flashing is not enabled for this development build.';
+ const model=modelName(),fm=isFm();
+ $('firmware-heading').textContent='Install GameDude on your '+model+'.';
+ $('connect-heading').textContent='Connect your '+model;
+ $('connect-hint').textContent=fm?'Factory M-VAVE V15 and updater-enabled firmware work here. Close other MIDI apps and unplug other instruments.':'Official M-VAVE 016 and updater-enabled firmware work here. Connect only the selected SMK model and close other MIDI apps.';
+ $('restore-copy').textContent='Restore the official M-VAVE '+(fm?'V15':'016')+' firmware for '+model+'. This replaces GameDude and its game library. The download is verified before transfer.';
+ $('restore-status').textContent='Connect your '+model+', then press Restore M-VAVE firmware.';
+ $('connection-help-title').textContent=model+' not showing up?';
+ $('connection-help-copy').textContent='Connect only the '+model+' directly by USB, allow MIDI / SysEx access, and close other MIDI apps or browser tabs. Older builds without a USB updater need the recovery adapter. If GameDude is in Bluetooth mode, restart it before installing firmware.';
+ $('flash-availability').textContent='USB setup · Chrome or Edge on a computer.';
  controls();
 }
+
 function log(text){
  const lines=$('install-log').textContent.split('\n').filter(Boolean);
  lines.push(new Date().toLocaleTimeString()+'  '+text);
@@ -52,70 +70,63 @@ async function midi(){
  ]);}finally{clearTimeout(timer);}
 }
 function readableError(e){return e.name==='NotAllowedError'?'MIDI access was blocked. Allow MIDI for this site in Chrome or Edge, then retry.':e.message;}
-function confirmGeneric(identity){
+function confirmGeneric(identity,model='FM-1'){
  return new Promise(resolve=>{
   const dialog=$('confirm-loader');$('loader-identity').textContent=identity;
-  dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='fm1'),{once:true});dialog.showModal();
+  $('loader-model').textContent='Continue only if the connected instrument is '+model+'.';$('confirm-model').textContent='It is '+model;dialog.returnValue='cancel';dialog.addEventListener('close',()=>resolve(dialog.returnValue==='confirm'),{once:true});dialog.showModal();
  });
 }
-document.addEventListener('gamedude-rom',e=>{
- if(busy)return;
- rom=new Uint8Array(e.detail.bytes);filename=e.detail.name;prepared=null;lastAction=null;
- $('retry-install').hidden=true;$('build-review').hidden=true;
- if(downloadUrl)URL.revokeObjectURL(downloadUrl);
- $('rom-summary').hidden=false;$('rom-name').textContent=e.detail.title;
- $('rom-info').textContent=`${(rom.length/1024).toFixed(0)} KiB · ${filename}`;
- message('Cartridge ready. Prepare firmware to put it on your FM-1.');controls();
-});
-document.addEventListener('gamedude-rom-clear',()=>{if(busy)return;rom=null;prepared=null;$('build-review').hidden=true;$('rom-summary').hidden=true;controls();});
-$('flash-model').onchange=()=>{lastAction=null;$('retry-install').hidden=true;available();};
+document.addEventListener('gamedude-device-state',e=>{deviceLocked=e.detail.busy||e.detail.checking||e.detail.connected;controls();});
+$('flash-model').onchange=()=>{prepared=null;lastAction=null;installed=false;connectionChecked=false;$('retry-install').hidden=true;$('device-status').textContent='No device connected.';message('GameDude is ready for '+modelName()+'. Connect by USB, then install.');available();};
 $('connect-device').onclick=async()=>{
- if(busy)return;busy=true;controls();reveal();progress.start('connect');
+ if(deviceLocked||busy)return;busy=true;operation='connect';connectionChecked=false;controls();progress.start('connect');
  try{
-  access=await midi();const up=new Updater(access,log),dev=await up.findAny(fm1Identity);
-  if(!dev)throw Error('No FM-1 identity reply. Use a USB data cable, connect only the FM-1, and close other MIDI apps. An active loader can be resumed with Install / resume.');
-  try{$('device-status').textContent='Connected: '+dev.id.text;log('Connected: '+dev.id.text+' on '+dev.name);}
+  if(await hasNativeSmk($('flash-model').value)){
+   const identity=await runNativeSmk('connect',log);connectionChecked=true;
+   $('device-status').textContent='Connected: '+identity;progress.stage('ready','Device connected');message(modelName()+' connected. Press Install GameDude.');return;
+  }
+  access=await midi();const up=new Updater(access,log,isFm()?undefined:SMK_PORT_PATTERN),dev=await up.findAny(isFm()?fm1Identity:smkIdentity(modelName()));
+  if(!dev)throw Error('No '+modelName()+' identity reply. Use a USB data cable, connect only this instrument, and close other MIDI apps. An active loader can be resumed with Install / resume.');
+  try{connectionChecked=true;$('device-status').textContent='Connected: '+(dev.id.text==='FM-1_015'?'M-VAVE factory V15':dev.id.text);log('Connected: '+dev.id.text+' on '+dev.name);}
   finally{await dev.link.close();}
-  progress.stage('ready','Device connected');message('Ready to install a game or restore M-VAVE firmware.');
- }catch(e){$('device-status').textContent=readableError(e);log(readableError(e));progress.fail();}
- finally{busy=false;controls();}
-};
-$('build-firmware').onclick=async()=>{
- if(busy||!rom)return;busy=true;controls();message('Preparing your cartridge locally…');
- try{
-  const response=await fetch('firmware/template.json',{cache:'no-store'});if(!response.ok)throw Error('Firmware template is unavailable.');
-  const metadata=await response.json(),download=await fetch('firmware/'+metadata.package,{cache:'no-store'});
-  if(!download.ok)throw Error('Firmware download failed.');
-  prepared=await prepareFirmware(rom,new Uint8Array(await download.arrayBuffer()),metadata);
-  if(downloadUrl)URL.revokeObjectURL(downloadUrl);
-  downloadUrl=URL.createObjectURL(new Blob([prepared.bytes],{type:'application/octet-stream'}));
-  $('download-firmware').href=downloadUrl;$('download-firmware').download='gamedude-'+filename.replace(/[^a-z0-9_-]/gi,'_')+'.fwsc';
-  $('build-title').textContent=`${$('rom-name').textContent} → FM-1`;
-  $('build-details').textContent=`${prepared.product} · ${(prepared.bytes.length/1024).toFixed(0)} KiB · USB updating included and verified`;
-  $('firmware-version').textContent='Firmware: '+prepared.product;
-  $('build-review').hidden=false;message('Firmware verified. Connect your FM-1 by USB, then press Install / resume.');
- }catch(e){prepared=null;message(readableError(e));}
- finally{busy=false;controls();}
+  access.onstatechange=e=>{if(e.port.state==='disconnected'&&!busy){connectionChecked=false;$('device-status').textContent='USB connection changed. Reconnect your '+modelName()+' and check the connection.';controls();}};
+  progress.stage('ready','Device connected');message(modelName()+' connected. Press Install GameDude.');
+ }catch(e){$('device-status').textContent=readableError(e);message(readableError(e),true);$('connection-help').open=true;log(readableError(e));progress.fail();}
+ finally{busy=false;operation='';controls();}
 };
 async function run(action){
- if(busy||$('flash-model').value!=='fm1'||(action==='game'&&!prepared))return;
- const game=prepared;lastAction=action;busy=true;controls();$('retry-install').hidden=true;
+ if(deviceLocked||busy||!modelName())return;
+ const model=modelName(),fm=isFm();lastAction=action;busy=true;operation=action;installed=false;controls();$('retry-install').hidden=true;
+ message(action==='restore'?'Restoring M-VAVE firmware. Keep power and USB connected.':'Installing GameDude firmware. Keep power and USB connected.');
  $('install-log').textContent='';reveal();progress.start(action==='restore'?'prepare':'connect');
  document.dispatchEvent(new Event('gamedude-pause'));let wake;
  try{
   try{wake=await navigator.wakeLock?.request('screen');}catch{}
-  access=await midi();const options={confirmGeneric};
-  const product=action==='restore'?await restoreLatest(access,log,options):await installFirmware(access,game.install,log,options);
-  progress.done();$('device-status').textContent='Restart verified: '+product;
-  if(action==='restore'){$('restore-status').textContent='M-VAVE V15 restored and restart verified.';message('Your FM-1 is back on its original M-VAVE firmware.');}
-  else message('Installed and restart verified. Press PLAY on your FM-1 to start.');
+  if(await hasNativeSmk($('flash-model').value)){
+   const product=await runNativeSmk(action==='restore'?'restore':'install',log);
+   const expected=action==='restore'?'SMK-37 Pro_016':'SMK-37_938';
+   if(product!==expected)throw Error('Unexpected firmware after restart: '+product+'; expected '+expected+'.');
+   installed=action==='firmware';connectionChecked=true;progress.done();$('device-status').textContent='Restart verified: '+product;
+   if(action==='restore'){$('restore-status').textContent='M-VAVE 016 restored and restart verified.';message('Your '+model+' is back on its original M-VAVE firmware.');}
+   else message('GameDude installed and restart verified on '+model+'. Open Add games to load your library.');
+   return;
+  }
+  if(action==='firmware'&&!prepared){
+   operation='prepare';controls();progress.stage('prepare','Preparing GameDude firmware');message('Downloading and verifying GameDude for '+model+'…');
+   prepared=await loadGamedudeFirmware($('flash-model').value);log('GameDude core verified: '+prepared.product);operation='firmware';controls();message('GameDude verified. Connecting to '+model+'…');
+  }
+  access=await midi();$('device-status').textContent='USB access granted. Finding '+model+'…';const options={confirmGeneric};
+  let product;if(fm)product=action==='restore'?await restoreLatest(access,log,options):await installFirmware(access,prepared.install,log,options);else{const handle=action==='restore'?await prepareSmkRestore(await stockFor(model),model):prepared.install;product=await installSmkFirmware(access,handle,log,options);}
+  installed=action==='firmware';connectionChecked=true;progress.done();$('device-status').textContent='Restart verified: '+product;
+  if(action==='restore'){$('restore-status').textContent='M-VAVE '+(fm?'V15':'016')+' restored and restart verified.';message('Your '+model+' is back on its original M-VAVE firmware.');}
+  else message('GameDude installed and restart verified on '+model+'. Open Add games to load your library.');
  }catch(e){
-  const error=readableError(e);log(error);message(error);progress.fail();
+  connectionChecked=false;const error=readableError(e);log(error);message(error,true);progress.fail();
   if(action==='restore')$('restore-status').textContent=error;
   $('retry-install').hidden=false;$('device-status').textContent='Installation not confirmed. See the log and retry instructions below.';
- }finally{await wake?.release().catch(()=>{});busy=false;controls();}
+ }finally{await wake?.release().catch(()=>{});busy=false;operation='';controls();}
 }
-$('flash-device').onclick=()=>run('game');$('restore-device').onclick=()=>run('restore');
+$('flash-device').onclick=()=>run('firmware');$('restore-device').onclick=()=>run('restore');
 $('retry-install').onclick=()=>{if(lastAction)run(lastAction);};
 $('save-install-log').onclick=()=>{
  const a=document.createElement('a'),url=URL.createObjectURL(new Blob([$('install-log').textContent],{type:'text/plain'}));
@@ -123,4 +134,3 @@ $('save-install-log').onclick=()=>{
 };
 window.addEventListener('beforeunload',e=>{if(busy){e.preventDefault();e.returnValue='';}});
 available();
-showAvailableVersion();

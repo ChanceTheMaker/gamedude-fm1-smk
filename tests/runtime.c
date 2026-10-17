@@ -27,12 +27,12 @@ int main(int argc,char**argv){
     rom[0x147]=6;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);assert(gp_save_size()==512);
     rom[0x147]=3;rom[0x149]=4;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);assert(gp_save_size()==131072);
     rom[0x147]=0;rom[0x149]=0;checksum(rom);assert(gp_load(rom,sizeof rom)==GP_OK);
-    /* FM-1 F3..G5: white 1/2 left, 3 down, 4/5 right and white 14 B and white 16 A. */
+    /* FM-1 F3..G5: white 1/2 left, 3 down, 4/5 right and white 15 B and white 16 A. */
     assert(gp_input_keys(1u<<0,0)==GP_LEFT);
     assert(gp_input_keys(1u<<4,0)==GP_DOWN);
     assert(gp_input_keys(1u<<7,0)==GP_RIGHT);
-    assert(gp_input_keys((1u<<23)|(1u<<26),0)==(GP_B|GP_A));
-    assert(gp_input_keys(1u<<24,0)==0);
+    assert(gp_input_keys((1u<<24)|(1u<<26),0)==(GP_B|GP_A));
+    assert(gp_input_keys(1u<<23,0)==0);
     assert(gp_input_keys(1u<<3,0)==GP_UP);
     assert(gp_input_keys(1u<<5,0)==GP_UP);
     assert(gp_input_keys((1u<<3)|(1u<<5),0)==GP_UP);
@@ -45,7 +45,7 @@ int main(int argc,char**argv){
     assert(gp_input_keys((1u<<1)|(1u<<8)|(1u<<10)|
         (1u<<13)|(1u<<15)|(1u<<17)|(1u<<20)|(1u<<22)|(1u<<25),0)==0);
     const uint32_t left=(1u<<0)|(1u<<2),right=(1u<<6)|(1u<<7),up=(1u<<3)|(1u<<5);
-    const uint32_t all=left|right|up|(1u<<4)|(1u<<11)|(1u<<12)|(1u<<23)|(1u<<26);
+    const uint32_t all=left|right|up|(1u<<4)|(1u<<11)|(1u<<12)|(1u<<24)|(1u<<26);
     assert(gp_fm1_key_lights(0)==all);
     assert(gp_fm1_key_lights(gp_input_keys(1u<<0,0))==(all&~left));
     assert(gp_fm1_key_lights(gp_input_keys(left,0))==(all&~left));
