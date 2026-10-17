@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {connectUsbLibrary} from './usb-library.js?v=solid1';
+import {connectUsbLibrary} from './usb-library.js?v=midi-session1';
 import {cartridge} from './zip.js';
 const openCartridge=async file=>[{name:file.name,read:async()=>new Uint8Array(await cartridge(await file.arrayBuffer()))}];
 import {decodeLoaderStatus,transferCartridge,loaderPacket} from './bluetooth-transfer.js';

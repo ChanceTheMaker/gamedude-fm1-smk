@@ -14,10 +14,10 @@ try{
  const page=await context.newPage();let mode='ready',probes=0,actions=[],errors=[];
  page.on('pageerror',e=>errors.push(e.message));
  await page.addInitScript(()=>{
-  window.midiCalls=0;
+  if(window===window.top)window.midiCalls=0;
   Object.defineProperty(navigator,'platform',{value:'Win32'});
   Object.defineProperty(navigator,'userAgentData',{value:{platform:'Windows'}});
-  Object.defineProperty(navigator,'requestMIDIAccess',{value:async()=>{window.midiCalls++;throw Error('Simulated browser MIDI permission');}});
+  Object.defineProperty(navigator,'requestMIDIAccess',{value:async()=>{window.top.midiCalls++;if(window.top.allowEmptyMidi){const port=()=>({name:'Unrelated test device',state:'connected',close:async()=>{window.top.closedMidiPorts++;}});return {sysexEnabled:true,inputs:new Map([['i',port()]]),outputs:new Map([['o',port()]])};}throw Error('Simulated browser MIDI permission');}});
  });
  await page.route(base+'**',async route=>{
   const relative=decodeURIComponent(new URL(route.request().url()).pathname.slice(new URL(base).pathname.length))||'index.html';
@@ -70,6 +70,17 @@ try{
  assert(await page.locator('#smk-helper-help').isHidden());
  const before=probes;await clickDone('#connect-device');assert.equal(probes,before);assert.equal(await page.evaluate(()=>window.midiCalls),1);
  assert.match(await page.locator('#device-status').textContent(),/Simulated browser MIDI permission/);
+ assert.equal(await page.locator('iframe[data-midi-session]').count(),0,'Permission failure must destroy its MIDI document');
+ await page.evaluate(()=>{window.allowEmptyMidi=true;window.closedMidiPorts=0;});
+ await clickDone('#connect-device');
+ assert.equal(await page.locator('iframe[data-midi-session]').count(),0,'Completed browser connection must end its MIDI document');
+ assert.equal(await page.evaluate(()=>window.closedMidiPorts),2,'Release both directions, including unselected MIDI ports');
+ const midiBefore=await page.evaluate(()=>window.midiCalls);
+ await page.locator('#flash-model').selectOption('smk-pro');
+ await clickDone('#flash-device');await clickDone('#restore-device');
+ assert.equal(await page.evaluate(()=>window.midiCalls),midiBefore,'SMK remains outside Web MIDI after FM-1 use');
+ assert.equal(await page.locator('#device-status').textContent(),'Restart verified: SMK-37 Pro_016');
+
  assert.deepEqual(errors,[]);
  console.log('PASS hosted '+app+': unavailable/wrong helper blocks MIDI; connect, install and restore use bound helper; FM-1 retains browser transport; responsive UI.');
 }finally{await browser.close();}
