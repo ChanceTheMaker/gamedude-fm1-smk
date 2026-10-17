@@ -10,14 +10,14 @@
     "smk-pro": {
       "product": "SMK-37_939",
       "file": "firmware/gamedude-smk37-939.bin",
-      "bytes": 171628,
-      "sha256": "3a3d7cf170ffc1fd7bc7a79e4453283f9136f8c00d3939c92bc09188fb54cf41"
+      "bytes": 171920,
+      "sha256": "f7f8127b3dfa47e07f96f22b67b391d92b5478d2bd7f5ee67aaefd5122b69e1a"
     },
     "smk-elite": {
       "product": "SMK-37_939",
       "file": "firmware/gamedude-smk37-939.bin",
-      "bytes": 171628,
-      "sha256": "3a3d7cf170ffc1fd7bc7a79e4453283f9136f8c00d3939c92bc09188fb54cf41"
+      "bytes": 171920,
+      "sha256": "f7f8127b3dfa47e07f96f22b67b391d92b5478d2bd7f5ee67aaefd5122b69e1a"
     }
   }
 }
