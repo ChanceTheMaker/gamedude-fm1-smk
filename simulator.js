@@ -37,7 +37,7 @@ export async function renderSimulator(next){
  try{
  let svg;
  if(next!=='gameboy'){
- if(!assets.has(next))assets.set(next,fetch('artwork/'+next+'.svg').then(r=>{if(!r.ok)throw Error('Device artwork unavailable.');return r.text();}).catch(e=>{assets.delete(next);throw e;}));
+ if(!assets.has(next))assets.set(next,fetch('artwork/'+next+'.svg?v=solid1').then(r=>{if(!r.ok)throw Error('Device artwork unavailable.');return r.text();}).catch(e=>{assets.delete(next);throw e;}));
  svg=new DOMParser().parseFromString(await assets.get(next),'image/svg+xml').documentElement;
  if(current!==generation)return;
  svg.removeAttribute('role');svg.setAttribute('role','group');

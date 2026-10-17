@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: GPL-3.0-only
-import {connectUsbLibrary} from './usb-library.js';
+import {connectUsbLibrary} from './usb-library.js?v=solid1';
 import {cartridge} from './zip.js';
 const openCartridge=async file=>[{name:file.name,read:async()=>new Uint8Array(await cartridge(await file.arrayBuffer()))}];
 import {decodeLoaderStatus,transferCartridge,loaderPacket} from './bluetooth-transfer.js';
 import {readLibrary,gameNamePacket,ensureLibrarySpace} from './bluetooth-library.js';
 const normalizeCartridge=async bytes=>({bytes:new Uint8Array(bytes),notice:''});
-import {validateHardwareRom} from './rom-firmware.js?v=938';
+import {validateHardwareRom} from './rom-firmware.js?v=939';
 const SERVICE='f86c4cf1-cf8b-4bc4-bc4c-d6f47eabe7f2',VALUE='f86c4cf1-cf8b-4bc4-bc4c-d6f47eabe7f3';
 // One transport/library controller for the standalone and main-page views.
 export function mountDeviceLoader({root=document,prefix='',sharedSelection=false,onState=()=>{}}={}){

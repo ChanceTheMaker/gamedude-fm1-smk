@@ -10,7 +10,7 @@ function sync(){motion.textContent=paused?'Play tour':'Pause tour';motion.setAtt
 async function show(next){
  const request=++token;index=next;svg=null;sync();const scene=scenes[index];
  try{
- if(!cache.has(scene.art))cache.set(scene.art,fetch('artwork/'+scene.art+'.svg').then(r=>{if(!r.ok)throw Error('Artwork unavailable');return r.text();}));
+ if(!cache.has(scene.art))cache.set(scene.art,fetch('artwork/'+scene.art+'.svg?v=solid1').then(r=>{if(!r.ok)throw Error('Artwork unavailable');return r.text();}));
  let text=await cache.get(scene.art);if(request!==token)return;
  // Isolate paint-server IDs from the playable simulator on this same page.
  const ids=[...text.matchAll(/\bid="([^"]+)"/g)].map(m=>m[1]);
