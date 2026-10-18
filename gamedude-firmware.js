@@ -12,7 +12,7 @@ export async function loadGamedudeFirmware(model,fetcher=fetch){
   return response;
  }
  const manifest=await (await download('firmware/gamedude.json')).json(),release=manifest.models?.[model];
- const product=model==='fm1'?'FM-1_939':'SMK-37_939';
+ const product=model==='fm1'?'FM-1_939':'SMK-37_952';
  if(manifest.version!==939||release?.product!==product||!/^firmware\/[a-z0-9-]+\.bin$/.test(release?.file)||!Number.isInteger(release?.bytes)||release.bytes<4||release.bytes>(model==='fm1'?204512:216800)||!/^[a-f0-9]{64}$/.test(release?.sha256))throw Error('GameDude release information is invalid. Reload the site and retry.');
  const app=new Uint8Array(await (await download(release.file)).arrayBuffer());
  if(app.length!==release.bytes||await sha256hex(app)!==release.sha256)throw Error('GameDude firmware verification failed. Reload the site and retry.');
@@ -22,7 +22,7 @@ export async function loadGamedudeFirmware(model,fetcher=fetch){
   bytes=await buildFeluccaPackage(stock,app,product);
  }else{
   const stock=await getSmkStock(SMK_MODELS[model],fetcher);
-  const built=await buildSmkPublicPackage(stock,app,{public:true,board:SMK_MODELS[model],product,version:'GAMEDUDE SMK 939',bytes:app.length,sha256:release.sha256});
+  const built=await buildSmkPublicPackage(stock,app,{public:true,board:SMK_MODELS[model],product,version:'GAMEDUDE SMK 952',bytes:app.length,sha256:release.sha256});
   bytes=built.factory;
  }
  return prepareFirmwareFile(bytes,model);
