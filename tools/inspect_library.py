@@ -15,7 +15,7 @@ def query(link,command):
 def main():
  p=argparse.ArgumentParser(description=__doc__);p.add_argument('--model',choices=['fm1','smk-pro'],required=True);p.add_argument('--mode',choices=['bluetooth','usb','menu']);a=p.parse_args()
  wire.PORT_RE=re.compile(r'fm-?1|felucca|sinco' if a.model=='fm1' else r'^(?!MIDIIN).*(?:smk|gamedude|nesynth|felucca|usb-midi)',re.I)
- d=wire.Updater(wire.MidoBackend()).wait_for(lambda i:i.text==('FM-1_939' if a.model=='fm1' else 'SMK-37_939'),12)
+ d=wire.Updater(wire.MidoBackend()).wait_for(lambda i:i.text==('FM-1_939' if a.model=='fm1' else 'SMK-37_952'),12)
  if not d:raise RuntimeError('The selected GameDude device did not reply')
  if a.mode:
   d.link.send(bytes([0xf0,0x7d,71,76,{'bluetooth':1,'usb':4,'menu':3}[a.mode],0xf7]));print(json.dumps({'mode_requested':a.mode,'identity':d.id.text}),flush=True);os._exit(0)

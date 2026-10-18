@@ -154,3 +154,11 @@ The first run installs pinned MIDI dependencies inside `build/python-deps` and d
 This helper identifies itself as `gamedude` and accepts only this site's pinned `SMK-37_939` core or the verified original Pro 016 firmware. The other GameDude edition uses its own port and package. Local ROM browsing remains loopback-only.
 
 All three helpers use the same Windows file lock, so a second site cannot start an SMK operation during another update. Helper tests: `npm run test:usb-helper`; hosted browser regression: `node tests/native_smk_ui.mjs` with Playwright installed or `PLAYWRIGHT_MODULE` set.
+
+
+## SMK flash compatibility release
+
+The SMK update and stock-restore path now accepts the reported EB6014 flash
+chip alongside 856014 and displays detailed loader failures. Update older
+Windows USB-helper checkouts before installing this release.
+See [release scope, evidence and recovery limits](docs/SMK_FLASH_COMPATIBILITY.md).
