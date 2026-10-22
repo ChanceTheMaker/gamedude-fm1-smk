@@ -4,10 +4,10 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 const {chromium}=await import(process.env.PLAYWRIGHT_MODULE||'playwright');
 const color=JSON.parse(await fs.readFile('package.json','utf8')).name==='gamedude-rgb';
-const app=color?'gamedude-color':'gamedude',expected=color?'SMK-37_983':'SMK-37_952';
+const app=color?'gamedude-color':'gamedude',expected=color?'SMK-37_985':'SMK-37_953';
 const base='https://chancethemaker.github.io/'+(color?'gamedude-rgb':'gamedude-fm1-smk')+'/';
 const helper='http://127.0.0.1:'+(color?8891:8890),token='t'.repeat(43);
-const appHash="909fee153a6145949868787f8c58cbe16e8ea5eec77fc8c4167c369692eec7cb";
+const appHash="db3ed0d31ff9287a62dc45c992533b11ffeae9e6453db4a646e98a3f4bb774a2";
 const types={'.js':'text/javascript','.html':'text/html','.css':'text/css','.svg':'image/svg+xml','.json':'application/json','.wasm':'application/wasm'};
 const browser=await chromium.launch({channel:'chrome',headless:true});
 try{

@@ -26,7 +26,7 @@ for hosted in [False,True]:
   assert request('OPTIONS',headers={'Origin':origin,'Access-Control-Request-Method':'POST','Access-Control-Request-Headers':'content-type,x-gamedude-token'}).status==204
   for headers in [{'Origin':origin},{'Origin':origin,'X-GameDude-Token':'wrong'},{'Origin':'null','X-GameDude-Token':cap['token']}]:
    assert request('POST','/api/smk/jobs',headers,b'{}').status==403
-  assert cap['app']=='gamedude' and cap['firmware']=='SMK-37_952'
+  assert cap['app']=='gamedude' and cap['firmware']=='SMK-37_953'
   assert request(path='/api/roms',headers={'Origin':origin}).status==403
   assert request(path='/api/rom?name=example.gb',headers={'Origin':origin}).status==403
   h={'Origin':origin,'X-GameDude-Token':cap['token'],'Content-Type':'application/json'}

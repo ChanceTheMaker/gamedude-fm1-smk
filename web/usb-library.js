@@ -49,7 +49,7 @@ export async function connectUsbLibrary(status=()=>{},selectedModel){
     try{
         dev=await updater.findAny(id=>['FM-1','SMK-37'].includes(id.model)&&(!selectedModel||id.model===(selectedModel==='fm1'?'FM-1':'SMK-37')));if(!dev)throw Error('FM-1 or SMK not found over USB. Check the data cable and close other MIDI installers.');
         const model=dev.id.model,minimum=938,version=dev.id.version;
-        if(![938,939].includes(version))throw Error(`USB game loading requires GameDude ${model} build ${minimum}.`);
+        if(![938,939,952,953].includes(version))throw Error(`USB game loading requires GameDude ${model} build ${minimum}.`);
         if(await mode(dev.link)!==4){
             status(`Opening USB game loading on your ${model}...`);
             if(!dev.link.send([0xf0,0x7d,71,76,4,0xf7]))throw Error('USB disconnected.');

@@ -58,3 +58,18 @@ Subsequent checks: the owner confirmed Color 985 ("looks good") and NESynth
 971 ("Looks good") with the same LED framing fix. These are SMK Pro physical
 pad/fader checks; neither Elite nor a new original-firmware round trip is
 claimed by this testing session. The public sites remain unchanged.
+
+## Public release 953
+
+The accepted application above is now selected by the public installer and
+matching Windows USB helper. FM-1 firmware is unchanged. Original-firmware
+restore and its existing compatibility checks are retained. The release uses
+the exact physically tested application, with no rebuild or private calibration.
+
+Release validation: both Pro and Elite public packages pass model/layout,
+checksum, corruption and wrong-model rejection checks. The native Pro install
+package matches the physically installed image and packet byte for byte.
+The original-firmware package builds successfully. Isolated headless Chrome
+checks pass install and restore with simulated USB, verify the Windows helper
+path does not open Web MIDI, and preserve the FM-1 browser path. These checks
+do not replace physical Elite or a new power-cycle/stock round-trip test.
