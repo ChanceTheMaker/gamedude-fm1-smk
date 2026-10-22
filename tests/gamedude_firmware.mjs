@@ -6,7 +6,7 @@ let corrupt=false,fail=false,badModel=false;
 const fetcher=async url=>{
  if(fail)return new Response('',{status:503});
  if(url==='firmware/gamedude.json'){
-  const data=structuredClone(manifest);if(badModel)data.models.fm1.product='SMK-37_952';
+  const data=structuredClone(manifest);if(badModel)data.models.fm1.product='SMK-37_953';
   return Response.json(data);
  }
  let file='web/'+url;
@@ -17,7 +17,7 @@ const fetcher=async url=>{
 };
 for(const model of ['fm1',...(process.argv[2]?['smk-pro','smk-elite']:[])]){
  const result=await loadGamedudeFirmware(model,fetcher);
- assert.equal(result.product,model==='fm1'?'FM-1_939':'SMK-37_952');assert(result.install);
+ assert.equal(result.product,model==='fm1'?'FM-1_939':'SMK-37_953');assert(result.install);
 }
 corrupt=true;await assert.rejects(()=>loadGamedudeFirmware('fm1',fetcher),/verification failed/);corrupt=false;
 fail=true;await assert.rejects(()=>loadGamedudeFirmware('fm1',fetcher),/download failed/);fail=false;

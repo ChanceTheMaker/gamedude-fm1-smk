@@ -12,7 +12,7 @@ files=['gamedude-logo-dark.svg','hero.js','artwork/game-stack.png','artwork/game
        'vendor/fm1pkg.js','vendor/fm1ota.js','vendor/smk-diagnostics.js','firmware/fm1-template.fwsc',
        'firmware/template.json','firmware/fm1-original.fwsc','firmware/original.json','firmware/GPL-3.0.txt','firmware/MIT-Peanut-GB.txt',
        'firmware/Apache-2.0.txt','firmware/NOTICE.txt']
-files.extend(['midi-session.js','device-loader.js','main-loader.js','device-loader.css','bluetooth-transfer.js','bluetooth-library.js','usb-library.js','gamedude-firmware.js','firmware-file.js','smk-format.js','smk-install.js','smk-firmware.js','native-smk.js','vendor/smk37-package.js','vendor/smk37-stock.js','firmware/gamedude.json','firmware/gamedude-fm1-939.bin','firmware/gamedude-smk37-952.bin'])
+files.extend(['midi-session.js','device-loader.js','main-loader.js','device-loader.css','bluetooth-transfer.js','bluetooth-library.js','usb-library.js','gamedude-firmware.js','firmware-file.js','smk-format.js','smk-install.js','smk-firmware.js','native-smk.js','vendor/smk37-package.js','vendor/smk37-stock.js','firmware/gamedude.json','firmware/gamedude-fm1-939.bin','firmware/gamedude-smk37-953.bin'])
 release=json.loads((WEB/'firmware/gamedude.json').read_text())
 assert release['version']==939
 for model,item in release['models'].items():
