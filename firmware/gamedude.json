@@ -8,20 +8,20 @@
       "sha256": "c84053d1c527cb09d6036e2ebec229bd17a9b37952af8246ee19acc4538dc1ec"
     },
     "smk-pro": {
-      "product": "SMK-37_952",
-      "file": "firmware/gamedude-smk37-952.bin",
-      "bytes": 172096,
-      "sha256": "909fee153a6145949868787f8c58cbe16e8ea5eec77fc8c4167c369692eec7cb"
+      "product": "SMK-37_953",
+      "file": "firmware/gamedude-smk37-953.bin",
+      "bytes": 172304,
+      "sha256": "db3ed0d31ff9287a62dc45c992533b11ffeae9e6453db4a646e98a3f4bb774a2"
     },
     "smk-elite": {
-      "product": "SMK-37_952",
-      "file": "firmware/gamedude-smk37-952.bin",
-      "bytes": 172096,
-      "sha256": "909fee153a6145949868787f8c58cbe16e8ea5eec77fc8c4167c369692eec7cb"
+      "product": "SMK-37_953",
+      "file": "firmware/gamedude-smk37-953.bin",
+      "bytes": 172304,
+      "sha256": "db3ed0d31ff9287a62dc45c992533b11ffeae9e6453db4a646e98a3f4bb774a2"
     }
   },
-  "smk_revision": 952,
-  "smk_source": "https://github.com/ChanceTheMaker/gamedude-fm1-smk/tree/smk-flash-compat-952",
-  "smk_source_archive": "https://github.com/ChanceTheMaker/gamedude-fm1-smk/archive/refs/tags/smk-flash-compat-952.zip",
-  "smk_hardware_validation": "SMK Pro: installed and restarted as SMK-37_952, then restored original Pro 016 with successful transfer/readback completion and exact restart identity. EB6014 and Elite hardware confirmation remain pending; UI, sound and long-run validation are not claimed."
+  "smk_revision": 953,
+  "smk_source": "https://github.com/ChanceTheMaker/gamedude-fm1-smk/tree/smk-pad-lights-953",
+  "smk_source_archive": "https://github.com/ChanceTheMaker/gamedude-fm1-smk/archive/refs/tags/smk-pad-lights-953.zip",
+  "smk_hardware_validation": "SMK Pro: installed and restarted as SMK-37_953; game upload CRC verified and owner accepted pad colors and Fader 2 brightness. Zero reported LED transfer errors. Existing original-firmware restore is retained; a new physical stock round trip and Elite hardware test were not performed for this release. See docs/SMK_PAD_LIGHTS.md."
 }

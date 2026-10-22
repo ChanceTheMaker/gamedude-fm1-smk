@@ -14,7 +14,7 @@ export async function prepareFirmwareFile(input,model){
  const parsed=fm?new Package(bytes):new SMKPackage(bytes);
  const match=parsed.product.match(/^(FM-1|SMK-37 Pro|SMK-37 Elite)_(9\d\d)$/);
  if(!match||match[1]!==board)throw Error('This firmware does not match '+board+'. Choose its GameDude .fwsc file.');
- if(Number(match[2])!==939)throw Error('Choose GameDude library firmware 939 for Bluetooth and USB game loading.');
+ if(!(fm?[939]:[939,952,953]).includes(Number(match[2])))throw Error('Choose GameDude library firmware '+(fm?'939':'953')+' for Bluetooth and USB game loading.');
  const product=(fm?'FM-1':'SMK-37')+'_'+match[2],sha256=await sha256hex(bytes);
  if(fm)return {product,sha256,install:await prepareInstall(bytes,{product,sha256})};
  if(parsed.appBase!==0x4000||parsed.appOff!==0x4120||parsed.flashSize!==0x9d000||parsed.chipKey!==0x980f)throw Error('Unsupported SMK firmware layout.');
