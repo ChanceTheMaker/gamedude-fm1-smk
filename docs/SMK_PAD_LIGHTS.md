@@ -53,3 +53,8 @@ and corresponding brightness readings establish what changed.
 
 Application SHA-256: `db3ed0d31ff9287a62dc45c992533b11ffeae9e6453db4a646e98a3f4bb774a2`.
 Application bytes: 172304. Free application space: 44496 bytes.
+
+Subsequent checks: the owner confirmed Color 985 ("looks good") and NESynth
+971 ("Looks good") with the same LED framing fix. These are SMK Pro physical
+pad/fader checks; neither Elite nor a new original-firmware round trip is
+claimed by this testing session. The public sites remain unchanged.
