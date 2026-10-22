@@ -7,6 +7,7 @@ const color=JSON.parse(await fs.readFile('package.json','utf8')).name==='gamedud
 const app=color?'gamedude-color':'gamedude',expected=color?'SMK-37_983':'SMK-37_952';
 const base='https://chancethemaker.github.io/'+(color?'gamedude-rgb':'gamedude-fm1-smk')+'/';
 const helper='http://127.0.0.1:'+(color?8891:8890),token='t'.repeat(43);
+const appHash="909fee153a6145949868787f8c58cbe16e8ea5eec77fc8c4167c369692eec7cb";
 const types={'.js':'text/javascript','.html':'text/html','.css':'text/css','.svg':'image/svg+xml','.json':'application/json','.wasm':'application/wasm'};
 const browser=await chromium.launch({channel:'chrome',headless:true});
 try{
@@ -29,7 +30,7 @@ try{
   if(url.pathname.endsWith('/capabilities')){
    probes++;
    if(mode==='absent')return route.abort('connectionrefused');
-   return route.fulfill({json:{available:true,models:['smk-pro'],protocol:1,token,app:mode==='wrong'?'wrong-site':app,firmware:expected}});
+   return route.fulfill({json:{available:true,models:['smk-pro'],protocol:1,token,application_sha256:mode==='legacy'?undefined:appHash,app:mode==='wrong'?'wrong-site':app,firmware:expected}});
   }
   if(request.method()==='POST'){
    assert.equal(request.headers()['x-gamedude-token'],token);
@@ -63,7 +64,7 @@ try{
  assert.equal(await page.locator('#device-status').textContent(),'Connected: '+expected);
  await clickDone('#flash-device');assert.equal(await page.locator('#device-status').textContent(),'Restart verified: '+expected);
  await page.locator('#restore-panel').evaluate(el=>el.open=true);
- await clickDone('#restore-device');assert.equal(await page.locator('#device-status').textContent(),'Restart verified: SMK-37 Pro_016');
+ mode='legacy';await clickDone('#restore-device');assert.equal(await page.locator('#device-status').textContent(),'Restart verified: SMK-37 Pro_016');
  assert.deepEqual(actions,['connect','install','restore']);assert.equal(await page.evaluate(()=>window.midiCalls),0);
  await page.locator('#games-tab').click();assert(await page.locator('#games-panel').isVisible());
  await page.locator('#firmware-tab').click();await page.locator('#flash-model').selectOption('fm1');
@@ -77,7 +78,7 @@ try{
  assert.equal(await page.evaluate(()=>window.closedMidiPorts),2,'Release both directions, including unselected MIDI ports');
  const midiBefore=await page.evaluate(()=>window.midiCalls);
  await page.locator('#flash-model').selectOption('smk-pro');
- await clickDone('#flash-device');await clickDone('#restore-device');
+ mode='ready';await clickDone('#flash-device');mode='legacy';await clickDone('#restore-device');
  assert.equal(await page.evaluate(()=>window.midiCalls),midiBefore,'SMK remains outside Web MIDI after FM-1 use');
  assert.equal(await page.locator('#device-status').textContent(),'Restart verified: SMK-37 Pro_016');
 
